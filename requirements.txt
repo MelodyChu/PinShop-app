@@ -1,0 +1,15 @@
+Flask==0.12
+Flask-DebugToolbar==0.10.1
+Flask-SQLAlchemy==2.2
+psycopg2==2.7.1
+SQLAlchemy==1.1.7
+clarifai==2.0.33
+configparser==3.5.0
+enum34==1.1.6
+functools32==3.2.3.post2
+future==0.15.2
+jsonschema==2.5.1
+Pillow==2.9.0
+requests==2.13.0
+etsy-py==1.0.0
+python-etsy==0.1.2
