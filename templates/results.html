@@ -1,0 +1,16 @@
+<html>
+<head>
+    <title>PinShop Results</title>
+</head>
+<body>
+    <h1>PinShop Etsy Results</h1>
+    <ul>
+  {% for result in etsy_payload %}
+    <li>
+      <a href="{{ result['url'] }}">{{ result['title'] }}</a>
+    </li>
+  {% endfor %}
+  </ul>
+
+</body>
+</html>
