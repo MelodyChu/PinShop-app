@@ -27,11 +27,12 @@ class User(db.Model):
     pant_size = db.Column(db.Integer, nullable=True) #in inches; may be an extra column
     shoe_size = db.Column(db.Float, nullable=True) #US shoe sizes
     pinterest_token = db.Column(db.String(100), nullable=True) #check pinterest user token formatting
+    # consider adding gender
 
 
-    def hash_password(self, password_str): #check decorator methods
-        self.password = hashlib.sha224(password_str).hexdigest()
-        return self.password
+    # def hash_password(self, password_str): #check decorator methods
+    #     self.password = hashlib.sha224(password_str).hexdigest()
+    #     return self.password - using bcrypt instead
   
     def __repr__(self):
         """Provide helpful representation when printed."""

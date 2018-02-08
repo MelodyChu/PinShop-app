@@ -1,0 +1,67 @@
+<html>
+<head>
+    <title>PinShop Sign Up</title>
+</head>
+<body>
+    <h1>Register</h1>
+
+    <form action="/register" method="POST">
+
+      <div class="form-group">
+        <label>
+            Email
+            <input type="email" name="email" class="form-control" required>
+        </label>
+      </div>
+
+      <div class="form-group">
+        <label>
+          Password
+          <input type="password" name="password" class="form-control" required>
+        </label>
+      </div>
+
+      <div class="form-group">
+        <label>
+          Age*
+          <input type="number" name="age" class="form-control">
+        </label>
+      </div>
+
+      <div class="form-group">
+        <label>
+          Top Size*
+          <select name="size">
+            <option value="X-Small">X-Small</option>
+            <option value="Small">Small</option>
+            <option value="Medium">Medium</option>
+            <option value="Large">Large</option>
+            <option value="X-Large">X-Large</option>
+        </select>
+        </label>
+      </div>
+
+      <div class="form-group">
+        <label>
+          Pant Size (US, inches)*
+          <input type="number" name="pant_size" min="23" max="40" class="form-control">
+        </label>
+      </div>
+
+      <div class="form-group">
+        <label>
+          Shoe Size (US)*
+          <input type="number" name="shoe_size" min="4" max="13" step=".5" class="form-control">
+        </label>
+      </div>
+
+      <p><i>* indicates optional field</i></p>
+
+      <div class="form-group">
+        <input type="submit" value="Register" class="btn btn-danger">
+      </div>
+
+    </form>
+
+</body>
+</html>

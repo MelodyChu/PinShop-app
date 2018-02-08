@@ -3,6 +3,7 @@
 from jinja2 import StrictUndefined
 
 from flask import Flask, render_template, request, flash, redirect, session, url_for
+from flask_bcrypt import Bcrypt
 from flask_debugtoolbar import DebugToolbarExtension
 
 from clarifai.rest import ClarifaiApp
@@ -11,17 +12,18 @@ import pprint
 
 from etsy_py.api import EtsyAPI
 
-from model import connect_to_db, db
+from model import connect_to_db, db, User, EtsyResult 
 
 etsy_api = EtsyAPI(api_key='SECRET_KEY')
 
 
-c_app = ClarifaiApp() 
+c_app = ClarifaiApp() #put in app token!
 c_model = c_app.models.get('apparel') #Clarifai apparel model
 color_model = c_app.models.get('color') #Clarifai color model
 
 
 app = Flask(__name__)
+bcrypt = Bcrypt(app)
 app.secret_key = "ABC"
 
 # Normally, if you use an undefined variable in Jinja2, it fails silently.
@@ -69,7 +71,7 @@ def EtsyResults(c_concepts, c_color): # takes list from Clarifai results as an a
 
 # Color query: https://openapi.etsy.com/v2/listings/active?includes=MainImage(url_170x135)&fields=listing_id,title,url,mainimage&keywords=Women%20Scarf&color=0000FF&color_accuracy=30&api_key=w31e04vuvggcsv6iods79ol7
 
-def ClarifaiColor(image_URL): # need to remove # from raw_hex
+def ClarifaiColor(image_URL): # can optimize next week; need less for loops
     """function to return 2nd maximum color from Clarifai color model, controlling for background color"""
     color_response = color_model.predict_by_url(url=image_URL)
     color_concepts = color_response['outputs'][0]['data']['colors']
@@ -93,7 +95,19 @@ def ClarifaiColor(image_URL): # need to remove # from raw_hex
             print d['raw_hex'][1:]
             return d['raw_hex'][1:] #returns a string of 2nd highest hex value
 
-############
+def set_val_user_id(): #does this go here? this works
+    """Set value for the next user_id after seeding database"""
+
+    # Get the Max user_id in the database
+    result = db.session.query(func.max(User.user_id)).one()
+    max_id = int(result[0])
+
+    # Set the value for the next user_id to be max_id + 1
+    query = "SELECT setval('users_user_id_seq', :new_id)"
+    db.session.execute(query, {'new_id': max_id + 1})
+    db.session.commit()
+
+########################################################################
 #ROUTES GO HERE
 
 # Can login/logout be done in jquery w/ AJAX? Or create separate routes?
@@ -115,7 +129,75 @@ def ClarifaiColor(image_URL): # need to remove # from raw_hex
 # logout
 # search - also homepage (get)
 # search (post)
-@app.route('/search', methods=['GET', 'POST'])
+@app.route('/register', methods=['GET']) #REPURPOSE
+def register_form():
+    """Show form for user signup."""
+
+    return render_template("registration.html")
+
+@app.route('/register', methods=['POST']) #REPURPOSE
+def register_process():
+    """Process registration."""
+
+    # Get form variables
+    email = request.form["email"]
+    password = request.form["password"]
+    age = int(request.form["age"])
+    size = request.form["size"]
+    pant_size = int(request.form["pant_size"])
+    shoe_size = float(request.form["shoe_size"])
+
+    pw_hash = bcrypt.generate_password_hash(password) #encrypting passowrds
+    new_user = User(email=email, password=pw_hash, age=age, size=size, pant_size=pant_size, shoe_size=shoe_size)
+
+    db.session.add(new_user) #specific to the DB session not flask session - to confirm
+    db.session.commit()
+
+    flash("User {} added.".format(email))
+    return redirect("/search")
+
+
+@app.route('/login', methods=['GET']) #REPURPOSE
+def login_form():
+    """Show login form."""
+
+    return render_template("login.html")
+
+@app.route('/login', methods=['POST']) #REPURPOSE
+def login_process():
+    """Process login."""
+
+    # Get form variables
+    email = request.form["email"]
+    password = request.form["password"]
+
+    user = User.query.filter_by(email=email).first()
+
+    if not user:
+        flash("Oops! Please log in!")
+        return redirect("/login")
+
+    #if user.password != password: # is this different if I hash?
+    if bcrypt.check_password_hash(user.password, password) == False:
+        flash("Incorrect password")
+        return redirect("/login")
+
+    session["user_id"] = user.user_id # can I just do session[user_id] = [] <-- to be filled with search results?
+
+    flash("Logged in")
+    return redirect("/search".format(user.user_id))
+
+
+@app.route('/logout') #REPURPOSE -- would this still work?
+def logout():
+    """Log out."""
+
+    del session["user_id"]
+    flash("Logged Out.")
+    return redirect("/search")
+
+
+@app.route('/search', methods=['GET', 'POST']) # how to customize search URL per user?
 def user_search():
     if request.method == 'GET': 
         return render_template("search.html")
@@ -138,14 +220,10 @@ def user_search():
                 etsy_data = EtsyResults(clarifai_concepts, clarifai_color) ### is this redundant? 
                 print type(etsy_data) #etsy_data is a list
                 session['my_etsy_list'] = etsy_data # try putting into session
+                # print "SEE SESSION HERE BELOW *********************************"
+                # print session
                 return redirect('/results') #if successful, go to results page
-                # return redirect(url_for('app.show_results', etsy_data=etsy_data))
-                ## debug = url_for('show_results', etsy_data=etsy_data)
-                # print type(debug) #type is string
-                # print debug # debug is etsy_data_type dictionary returned as a URL string
-                # print 'DID THIS PRINT**!*!*!*!*!*!*!**!*!*!*!'
-                # return redirect(url_for('.show_results', etsy_data=etsy_data))
-                #return redirect(url_for('show_results', etsy_data=etsy_data))
+
             except:
                 print ("Etsy API failed to return results")
                 flash("Clarifai API failed to return results")
@@ -159,17 +237,9 @@ def user_search():
 @app.route('/results', methods=['GET'])
 def show_results(): #how do I get etsy_data_list into here?
     """display Etsy search results on the results page"""
-    # etsy_payload = request.args.get('etsy_data')
 
-    # getting image URL: https://openapi.etsy.com/v2/listings/508922349/images?api_key=w31e04vuvggcsv6iods79ol7
-    # for each result get listing ID (use a loop to create a list)
-    # append listing ID to get proper API request
-    # get first image URL
     return render_template("results.html") #etsy_payload=etsy_payload)
 
-
-    # process etsy data to just get a list of image URL's / URL's, listing ID, title
-    # get that blob of stuff; pass to jinja to loop through and display results
 
 
 ## taking inputs from html form; 2 functions for clarifai API & Etsy API
