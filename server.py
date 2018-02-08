@@ -43,9 +43,11 @@ def ClarifaiResults(image_URL):
     print c_concepts
     return c_concepts 
 
+# GET MAIN IMAGE FROM ETSY: https://openapi.etsy.com/v2/listings/active?includes=MainImage(url_170x135)&fields=listing_id,title,url,mainimage&keywords=Women%20Scarf&api_key=w31e04vuvggcsv6iods79ol7
+
 def EtsyResults(c_concepts): # takes list from Clarifai results as an argument
     """Construct Etsy API request using concepts extrated from Clarifai"""
-    api_request_str = 'https://openapi.etsy.com/v2/listings/active?fields=listing_id,title,url&keywords='
+    api_request_str = 'https://openapi.etsy.com/v2/listings/active?includes=MainImage(url_170x135)&fields=listing_id,title,url,mainimage&keywords='
     for concept in c_concepts: #iterating through list of concepts from Clarifai
         concept = concept.replace(' ', '%20') # convert spaces into %20 for API request
         concept = concept.replace("'s", '') # remove 's from strings
@@ -150,7 +152,6 @@ def user_search():
 @app.route('/results', methods=['GET'])
 def show_results(): #how do I get etsy_data_list into here?
     """display Etsy search results on the results page"""
-    # etsy_data_list = EtsyResults(ClarifaiResults()) # whatever is returned from don't want to have to re-request
     # etsy_payload = request.args.get('etsy_data')
 
     # getting image URL: https://openapi.etsy.com/v2/listings/508922349/images?api_key=w31e04vuvggcsv6iods79ol7
