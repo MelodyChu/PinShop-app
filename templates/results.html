@@ -5,9 +5,10 @@
 <body>
     <h1>PinShop Etsy Results</h1>
     <ul>
-  {% for result in etsy_payload %}
+  {% for result in session.pop('my_etsy_list', []) %}
     <li>
-      <a href="{{ result['url'] }}">{{ result['title'] }}</a>
+      <a href="{{ result['url'] }}">{{ result['title'] }}
+      {# <div>This is a placeholder for a result!</div> #}
     </li>
   {% endfor %}
   </ul>

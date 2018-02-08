@@ -17,7 +17,8 @@ etsy_api = EtsyAPI(api_key='SECRET_KEY')
 
 
 c_app = ClarifaiApp() 
-c_model = c_app.models.get('apparel')
+c_model = c_app.models.get('apparel') #Clarifai apparel model
+color_model = c_app.models.get('color') #Clarifai color model
 
 
 app = Flask(__name__)
@@ -54,8 +55,39 @@ def EtsyResults(c_concepts): # takes list from Clarifai results as an argument
     print api_request_str # debugging
     etsy_request = etsy_api.get(api_request_str)
     etsy_data = etsy_request.json()
-    etsy_data_list = etsy_data['results']
+
+    try:
+        etsy_data_list = etsy_data['results']
+    except:
+        print ("I got here OOOOOPSSSSSSSS")
+    print etsy_data_list
+
+
     return etsy_data_list # returns a list of dictionaries associated with etsy results key
+
+def ClarifaiColor(image_URL): # there must be more efficient way to do this
+    """function to return 2nd maximum color from Clarifai color model, controlling for background color"""
+    color_response = color_model.predict_by_url(url=image_URL)
+    color_concepts = color_response['outputs'][0]['data']['colors']
+    max_color_val = color_concepts[0]['value']
+    for color_dict in color_concepts: # for each color dictionary
+        if color_dict['value'] > max_color_val:
+            color_dict['value'] = max_color_val
+             
+    for color_dict_2 in color_concepts:
+        if color_dict_2['value'] == max_color_val:
+            color_concepts.remove(color_dict_2) # remove max val dict from list
+            print color_concepts #debugging
+
+    max_2 = color_concepts[0]['value']
+    for c in color_concepts:
+        if c['value'] > max_2:
+            c['value'] = max_2
+
+    for d in color_concepts:
+        if d['value'] == max_2:
+            print str(d['raw_hex']) + ' ' + str(d['value'])
+            return d['raw_hex']
 
 ############
 #ROUTES GO HERE
@@ -95,9 +127,16 @@ def user_search():
         if clarifai_concepts is not None: # if there is a concept list returned; pass those to the function
             try: 
                 etsy_data = EtsyResults(clarifai_concepts) ### is this redundant? 
-                # return redirect('/results') #if successful, go to results page
-                return redirect(url_for('app.show_results', etsy_data=etsy_data))
+                print type(etsy_data) #etsy_data is a list
+                session['my_etsy_list'] = etsy_data # try putting into session
+                return redirect('/results') #if successful, go to results page
+                # return redirect(url_for('app.show_results', etsy_data=etsy_data))
+                ## debug = url_for('show_results', etsy_data=etsy_data)
+                # print type(debug) #type is string
+                # print debug # debug is etsy_data_type dictionary returned as a URL string
+                # print 'DID THIS PRINT**!*!*!*!*!*!*!**!*!*!*!'
                 # return redirect(url_for('.show_results', etsy_data=etsy_data))
+                #return redirect(url_for('show_results', etsy_data=etsy_data))
             except:
                 print ("Etsy API failed to return results")
                 flash("Clarifai API failed to return results")
@@ -112,8 +151,14 @@ def user_search():
 def show_results(): #how do I get etsy_data_list into here?
     """display Etsy search results on the results page"""
     # etsy_data_list = EtsyResults(ClarifaiResults()) # whatever is returned from don't want to have to re-request
-    etsy_payload = request.args['etsy_data']
-    return render_template("results.html",etsy_payload=etsy_payload)
+    # etsy_payload = request.args.get('etsy_data')
+
+    # getting image URL: https://openapi.etsy.com/v2/listings/508922349/images?api_key=w31e04vuvggcsv6iods79ol7
+    # for each result get listing ID (use a loop to create a list)
+    # append listing ID to get proper API request
+    # get first image URL
+    return render_template("results.html") #etsy_payload=etsy_payload)
+
 
     # process etsy data to just get a list of image URL's / URL's, listing ID, title
     # get that blob of stuff; pass to jinja to loop through and display results

@@ -39,6 +39,3 @@ test = EtsyResults(['Bodysuit','red velvet']) # need to process spaces, colons, 
 print test
 # list_dict = test['results'] # gives a list of dictionaries
 
-### IN JINJA: pass in etsy_data_list
-# for dicts in test:
-#     print dicts['url']
