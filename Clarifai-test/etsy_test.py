@@ -2,7 +2,7 @@ from etsy_py.api import EtsyAPI
 import json
 import pprint
 
-etsy_api = EtsyAPI(api_key='SECRET_KEY')
+etsy_api = EtsyAPI(api_key='w31e04vuvggcsv6iods79ol7')
 
 # get a list of all top level Etsy categories; look at trending categories
 #r = api.get('https://openapi.etsy.com/v2/listings/trending?fields=listing_id,title,price')
@@ -16,11 +16,11 @@ etsy_api = EtsyAPI(api_key='SECRET_KEY')
 # URL searching for "white boots women"
 # https://www.etsy.com/search?q=white%20boots%20women
 
-def EtsyResults(c_concepts):
+def EtsyResults(c_concepts, c_color):
     """Construct Etsy API request using concepts extrated from Clarifai"""
     # sample concept list retured from Clarfai Results function: [u'Bodysuit', u'Midi Skirt', u"Women's Shorts"]
     # r = api.get('https://openapi.etsy.com/v2/listings/active?fields=listing_id,title,url&keywords=wedding,ring,ruby')
-    api_request_str = 'https://openapi.etsy.com/v2/listings/active?fields=listing_id,title,url&keywords='
+    api_request_str = 'https://openapi.etsy.com/v2/listings/active?includes=MainImage(url_170x135)&fields=listing_id,title,url,mainimage&color_accuracy=30&color=' + c_color + '&keywords='
     for concept in c_concepts: #iterating through list of concepts from Clarifai
         concept = concept.replace(' ', '%20') # convert spaces into %20 for API request
         concept = concept.replace("'s", '') # remove 's from strings
@@ -35,7 +35,7 @@ def EtsyResults(c_concepts):
     #print etsy_data_pp
     return etsy_data_list
 
-test = EtsyResults(['Bodysuit','red velvet']) # need to process spaces, colons, commas
+test = EtsyResults(['Dress','Women'], 'e6e6fa') # need to process spaces, colons, commas
 print test
 # list_dict = test['results'] # gives a list of dictionaries
 

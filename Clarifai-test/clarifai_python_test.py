@@ -1,8 +1,9 @@
+from clarifai import rest
 from clarifai.rest import ClarifaiApp
 import json
 import pprint
 
-c_app = ClarifaiApp()
+c_app = ClarifaiApp(api_key='[SECRET_KEY]')
 
 c_model = c_app.models.get('apparel')
 color_model = c_app.models.get('color')
@@ -41,8 +42,10 @@ def ClarifaiColor(image_URL):
     for d in color_concepts:
         if d['value'] == max_2:
             print d
-            print str(d['raw_hex']) + ' ' + str(d['value'])
-            return d['raw_hex']
+            print "CHECK BELOWWWWWWWWW"
+            print d['raw_hex'][1:]
+            # print str(d['raw_hex']) + ' ' + str(d['value'])
+            # return d['raw_hex']
 
 ClarifaiColor('https://joanieclothing.com/media_thing/uploads/2017/01/MATLIDA_FRONT_800x1100.jpg')
             # print max_color_val

@@ -45,9 +45,9 @@ def ClarifaiResults(image_URL):
 
 # GET MAIN IMAGE FROM ETSY: https://openapi.etsy.com/v2/listings/active?includes=MainImage(url_170x135)&fields=listing_id,title,url,mainimage&keywords=Women%20Scarf&api_key=w31e04vuvggcsv6iods79ol7
 
-def EtsyResults(c_concepts): # takes list from Clarifai results as an argument
+def EtsyResults(c_concepts, c_color): # takes list from Clarifai results as an argument, and color
     """Construct Etsy API request using concepts extrated from Clarifai"""
-    api_request_str = 'https://openapi.etsy.com/v2/listings/active?includes=MainImage(url_170x135)&fields=listing_id,title,url,mainimage&keywords='
+    api_request_str = api_request_str = 'https://openapi.etsy.com/v2/listings/active?includes=MainImage(url_170x135)&fields=listing_id,title,url,mainimage&color_accuracy=30&color=' + c_color + '&keywords='
     for concept in c_concepts: #iterating through list of concepts from Clarifai
         concept = concept.replace(' ', '%20') # convert spaces into %20 for API request
         concept = concept.replace("'s", '') # remove 's from strings
@@ -67,7 +67,9 @@ def EtsyResults(c_concepts): # takes list from Clarifai results as an argument
 
     return etsy_data_list # returns a list of dictionaries associated with etsy results key
 
-def ClarifaiColor(image_URL): # there must be more efficient way to do this
+# Color query: https://openapi.etsy.com/v2/listings/active?includes=MainImage(url_170x135)&fields=listing_id,title,url,mainimage&keywords=Women%20Scarf&color=0000FF&color_accuracy=30&api_key=w31e04vuvggcsv6iods79ol7
+
+def ClarifaiColor(image_URL): # need to remove # from raw_hex
     """function to return 2nd maximum color from Clarifai color model, controlling for background color"""
     color_response = color_model.predict_by_url(url=image_URL)
     color_concepts = color_response['outputs'][0]['data']['colors']
@@ -88,8 +90,8 @@ def ClarifaiColor(image_URL): # there must be more efficient way to do this
 
     for d in color_concepts:
         if d['value'] == max_2:
-            print str(d['raw_hex']) + ' ' + str(d['value'])
-            return d['raw_hex']
+            print d['raw_hex'][1:]
+            return d['raw_hex'][1:] #returns a string of 2nd highest hex value
 
 ############
 #ROUTES GO HERE
@@ -120,15 +122,20 @@ def user_search():
     if request.method == 'POST':
         imageURL = request.form.get('image_URL') # get image URL from the form
         clarifai_concepts = None
-        print imageURL
+        # clarifai_color = None # adding clarifai color here as well
         try:
             clarifai_concepts = ClarifaiResults(imageURL) # call ClarifaiResults helper function; get list of top concepts
         except:
-            print ("Clarifai API failed to return results")
-            flash("Clarifai API failed to return results")
-        if clarifai_concepts is not None: # if there is a concept list returned; pass those to the function
+            print ("Clarifai API failed to return concept results")
+            flash("Clarifai API failed to return concept results")
+        try: 
+            clarifai_color = ClarifaiColor(imageURL) # pass in imageURL to clarifai color model
+        except:
+            print ("Clarifai API failed to return color result")
+            flash("Clarifai API failed to return color result")
+        if clarifai_concepts is not None and clarifai_color is not None: # if there is a concept list returned; pass those to the function
             try: 
-                etsy_data = EtsyResults(clarifai_concepts) ### is this redundant? 
+                etsy_data = EtsyResults(clarifai_concepts, clarifai_color) ### is this redundant? 
                 print type(etsy_data) #etsy_data is a list
                 session['my_etsy_list'] = etsy_data # try putting into session
                 return redirect('/results') #if successful, go to results page
