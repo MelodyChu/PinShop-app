@@ -5,12 +5,30 @@
 <body>
     <h1>PinShop Etsy Results</h1>
 
-  {% for result in session.pop('my_etsy_list', []) %}
+  {% for result in results %}
     <div>
       <a href="{{ result['url'] }}"><img src="{{ result['MainImage']['url_170x135'] }}" style="width:100px;height:100px;">{{ result['title'] }}</a>
-      {# <div>This is a placeholder for a result!</div> #}
+      <button class="save-button" data-etsy-id="{{ result['listing_id'] }}" >Save</button>
+      {# is this the right place for Save? will it be rendered for each result? #}
     </div>
   {% endfor %}
 
 </body>
 </html>
+
+<!-- Note: When user saves a Etsy listing, want to pass above result into our /result POST route  -->
+<!-- Note: When user saves a Etsy listing, AJAX success call will turn the button blue & change to 'saved'  -->
+
+<!-- JQUERY SECTION
+function savedSuccess(results) {
+    var saved = results;
+    $('#save-button').html("Saved");
+    console.log("Finished saving Etsy result!");
+}
+
+function saveItem() {
+    $.post('/results', [ETSY DATA ON 1 LISTING], savedSuccess);
+    console.log("Finished sending AJAX");
+}
+
+$('#save-button').on('click', saveItem); -->

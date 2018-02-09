@@ -3,7 +3,7 @@ from clarifai.rest import ClarifaiApp
 import json
 import pprint
 
-c_app = ClarifaiApp(api_key='[SECRET_KEY]')
+c_app = ClarifaiApp(api_key=CLARIFAI_KEY)
 
 c_model = c_app.models.get('apparel')
 color_model = c_app.models.get('color')

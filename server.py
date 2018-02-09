@@ -14,7 +14,10 @@ from etsy_py.api import EtsyAPI
 
 from model import connect_to_db, db, User, EtsyResult 
 
-etsy_api = EtsyAPI(api_key='SECRET_KEY')
+import os
+ETSY_KEY = os.environ.get('ETSY_KEY')
+
+etsy_api = EtsyAPI(api_key=ETSY_KEY)
 
 
 c_app = ClarifaiApp() #put in app token!
@@ -110,33 +113,14 @@ def set_val_user_id(): #does this go here? this works
 ########################################################################
 #ROUTES GO HERE
 
-# Can login/logout be done in jquery w/ AJAX? Or create separate routes?
-
-
-# Search route (where users upload image / provide image URL); can input optional search parameters like size. G
-# Have get route (to get search page)
-# have post route (to make API request to Clarifai API; take extracted concepts and put into Etsy API request)
-# since making chain of API calls; should i learn how to make async calls in flask - in JS (try / catch; promise)
-
-# Results page (shows etsy results); v2 allow users to bookmark
-
-# Bookmarks page - v2 (Shows bookmarked etsy listings)
-
-# login (get) #don't do modals! need to hit server fully
-# signup (get)
-# signup (post)
-# login (post)
-# logout
-# search - also homepage (get)
-# search (post)
-@app.route('/register', methods=['GET']) #REPURPOSE
+@app.route('/register', methods=['GET']) 
 def register_form():
     """Show form for user signup."""
 
     return render_template("registration.html")
 
-@app.route('/register', methods=['POST']) #REPURPOSE
-def register_process():
+@app.route('/register', methods=['POST'])
+def register_user():
     """Process registration."""
 
     # Get form variables
@@ -157,13 +141,13 @@ def register_process():
     return redirect("/search")
 
 
-@app.route('/login', methods=['GET']) #REPURPOSE
+@app.route('/login', methods=['GET']) 
 def login_form():
     """Show login form."""
 
     return render_template("login.html")
 
-@app.route('/login', methods=['POST']) #REPURPOSE
+@app.route('/login', methods=['POST'])
 def login_process():
     """Process login."""
 
@@ -177,18 +161,17 @@ def login_process():
         flash("Oops! Please log in!")
         return redirect("/login")
 
-    #if user.password != password: # is this different if I hash?
     if bcrypt.check_password_hash(user.password, password) == False:
         flash("Incorrect password")
         return redirect("/login")
 
-    session["user_id"] = user.user_id # can I just do session[user_id] = [] <-- to be filled with search results?
+    session["user_id"] = user.user_id # session ID will be BIG; includes Etsy payload below
 
     flash("Logged in")
     return redirect("/search".format(user.user_id))
 
 
-@app.route('/logout') #REPURPOSE -- would this still work?
+@app.route('/logout')
 def logout():
     """Log out."""
 
@@ -200,13 +183,16 @@ def logout():
 @app.route('/search', methods=['GET', 'POST']) # how to customize search URL per user?
 def user_search():
     if request.method == 'GET': 
+        # possibly clear previous session query here; every time user searches, clears previous Etsy sult payload
+        # if session.my_etsy_list: # if there is something in my_etsy_list from a previous search
+        #   session.pop('my_etsy_list', []) -- check this
         return render_template("search.html")
     if request.method == 'POST':
         imageURL = request.form.get('image_URL') # get image URL from the form
         clarifai_concepts = None
         # clarifai_color = None # adding clarifai color here as well
         try:
-            clarifai_concepts = ClarifaiResults(imageURL) # call ClarifaiResults helper function; get list of top concepts
+            clarifai_concepts = ClarifaiResults(imageURL)
         except:
             print ("Clarifai API failed to return concept results")
             flash("Clarifai API failed to return concept results")
@@ -219,10 +205,11 @@ def user_search():
             try: 
                 etsy_data = EtsyResults(clarifai_concepts, clarifai_color) ### is this redundant? 
                 print type(etsy_data) #etsy_data is a list
-                session['my_etsy_list'] = etsy_data # try putting into session
-                # print "SEE SESSION HERE BELOW *********************************"
-                # print session
-                return redirect('/results') #if successful, go to results page
+                # session['my_etsy_list'] = etsy_data # try putting into session
+                # # print "SEE SESSION HERE BELOW *********************************"
+                # # print session
+                # return redirect('/results') #if successful, go to results page
+                return redirect(url_for('show_results', results=json.dumps(etsy_data)))
 
             except:
                 print ("Etsy API failed to return results")
@@ -235,10 +222,31 @@ def user_search():
         return redirect('/search')
 
 @app.route('/results', methods=['GET'])
-def show_results(): #how do I get etsy_data_list into here?
+def show_results(): 
     """display Etsy search results on the results page"""
 
-    return render_template("results.html") #etsy_payload=etsy_payload)
+    results = json.loads(request.args.get('results')) #changes to list of dicts
+    #import pdb; pdb.set_trace()
+
+    return render_template("results.html", results=results) 
+
+@app.route('/add-bookmark.json', methods=['POST'])
+def save_result():
+    """handle users saving Etsy results""" 
+    ### grab data from the saves and commit to EtsyResults table in DB
+    # saved_items = request.args.get("[insert saved stuff here from HTML/JQUERY]")
+    # put saved_items - entire object - into session
+    # put saved_items listing ID into DB using a loop (but what if user un-saves?)
+    pass
+
+
+@app.route('/bookmarks', methods=['GET'])
+def view_bookmarks():
+    """display the Etsy search rsults that the user has saved"""
+    # grab saved items from user session in Jinja
+    # iterate through each item
+    # return render_template
+    pass 
 
 
 
@@ -268,11 +276,14 @@ if __name__ == "__main__":
     # We have to set debug=True here, since it has to be True at the point
     # that we invoke the DebugToolbarExtension
     app.debug = True
+    app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
+
 
     connect_to_db(app)
 
     # Use the DebugToolbar
     DebugToolbarExtension(app)
+    
 
     app.run(host="0.0.0.0", port=5001)
 

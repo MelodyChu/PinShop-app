@@ -2,7 +2,7 @@ from etsy_py.api import EtsyAPI
 import json
 import pprint
 
-etsy_api = EtsyAPI(api_key='w31e04vuvggcsv6iods79ol7')
+etsy_api = EtsyAPI(api_key=ETSY_KEY)
 
 # get a list of all top level Etsy categories; look at trending categories
 #r = api.get('https://openapi.etsy.com/v2/listings/trending?fields=listing_id,title,price')
