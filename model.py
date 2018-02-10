@@ -21,18 +21,16 @@ class User(db.Model):
                         autoincrement=True,
                         primary_key=True)
     email = db.Column(db.String(64), nullable=False)
-    password = db.Column(db.String(64), nullable=False) #ask about adding salt & hash passwords
+    password = db.Column(db.String(64), nullable=False) #PW hashed
+    gender = db.Column(db.String(64), nullable=True)
     age = db.Column(db.Integer, nullable=True) # can consider storing as strings
     size = db.Column(db.String(64), nullable=True) #selector for XS, small, medium, large
     pant_size = db.Column(db.Integer, nullable=True) #in inches; may be an extra column
     shoe_size = db.Column(db.Float, nullable=True) #US shoe sizes
     pinterest_token = db.Column(db.String(100), nullable=True) #check pinterest user token formatting
-    # consider adding gender
 
+    bookmarks = db.relationship('Bookmark') #relationship to bookmark
 
-    # def hash_password(self, password_str): #check decorator methods
-    #     self.password = hashlib.sha224(password_str).hexdigest()
-    #     return self.password - using bcrypt instead
   
     def __repr__(self):
         """Provide helpful representation when printed."""
@@ -40,69 +38,51 @@ class User(db.Model):
         return "<User user_id={} email={}>".format(self.user_id,
                                                self.email)
 
-# class ImageSearch(db.Model):
-#     """Table of image search queries. One user can only search for 1 image at a time"""
-
-#     __tablename__ = "imagesearches"
-
-#     search_id = db.Column(db.Integer,
-#                           autoincrement=True,
-#                           primary_key=True)
-#     user_id = db.Column(db.Integer,
-#                          db.ForeignKey('users.user_id'))
-#     image_path = db.Column(db.String(150), nullable=False) #need an image path to search
-
-#     user = db.relationship("User", backref=db.backref("imagesearches", 
-#                                                       order_by=search_id))
-
-#     def __repr__(self):
-#         """Provide helpful representation when printed."""
-
-#         return "<ImageSearch search_id={} image_path={}>".format(self.image_id,
-#                                                self.image_path)
-
-# class ClarifaiResult(db.Model):
-#     """Table of concept results returned from Clarifai Image Predict model"""
-
-#     __tablename__ = "clarifairesults"
-
-#     result_id = db.Column(db.Integer,
-#                           autoincrement=True,
-#                           primary_key=True)
-#     search_id = db.Column(db.Integer,
-#                          db.ForeignKey('imagesearches.search_id'))
-
-#     imagesearch = db.relationship("ImageSearch", backref=db.backref("clarifairesults", 
-#                                                       order_by=result_id))
-
-#     def __repr__(self):
-#         """Provide helpful representation when printed."""
-
-#         return "<Clarifai result_id={} search_id={}>".format(self.result_id,
-#                                                self.top_concepts)
 
 
-class EtsyResult(db.Model):
-    """Table of user *saved* listings returned by Etsy - will not be saving all listings returned by Etsy"""
+class Bookmark(db.Model): #rename to bookmarks intermediary table / association
+    """Table of all user *saved* listings returned by Etsy"""
 
-    __tablename__ = "etsyresults"
+    __tablename__ = "bookmarks"
 
-    etsy_result_id = db.Column(db.Integer,
+    bookmark_id = db.Column(db.Integer,
                           autoincrement=True,
                           primary_key=True)
     user_id = db.Column(db.Integer,
                          db.ForeignKey('users.user_id'))
    
-    etsy_listing_id = db.Column(db.Integer, nullable=False) #list of listings saved
+    etsy_listing_id = db.Column(db.Integer, db.ForeignKey('etsyresults.etsy_listing_id'), nullable=False) #list of listings saved
 
-    # user = db.relationship("User", backref=db.backref("users", 
-    #                                                     order_by=user_id))
+    user = db.relationship('User') #edit
+    etsyresult = db.relationship('EtsyResult') #edit CHANGE THIS TO ETSY_RESULT
 
     def __repr__(self):
         """Provide helpful representation when printed."""
 
-        return "<Etsy etsy_result_id={} etsy_listing_ID={}".format(self.etsy_result_id,
-                                                            self.etsy_listing_ID)
+        return "<Bookmark bookmark_id={} etsy_listing_id={}".format(self.bookmark_id,
+                                                            self.etsy_listing_id)
+
+class EtsyResult(db.Model): #rename to bookmarks intermediary table / association
+    """Table of all Etsy items saved; will not have duplicate listings/items"""
+
+    __tablename__ = "etsyresults"
+
+    etsy_listing_id = db.Column(db.Integer, primary_key=True) #not auto incrementing; Etsy provides unique primary keys
+    # db.ForeignKey('bookmarks.etsy_listing_id')
+
+    listing_title = db.Column(db.String(2000), nullable=False)
+
+    listing_url = db.Column(db.String(2000), nullable=False)
+    listing_image = db.Column(db.String(2000), nullable=False) #image URL of etsy image
+    listing_price = db.Column(db.Float, nullable=True)
+
+
+    bookmarks = db.relationship('Bookmark') 
+
+    def __repr__(self):
+        """Provide helpful representation when printed."""
+
+        return "<Etsy etsy_listing_id={} listing_title={}".format(self.etsy_listing_id, self.listing_title)
 
 #####################################################################
 # Helper functions

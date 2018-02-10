@@ -49,10 +49,10 @@ def ClarifaiResults(image_URL):
     return c_concepts 
 
 # GET MAIN IMAGE FROM ETSY: https://openapi.etsy.com/v2/listings/active?includes=MainImage(url_170x135)&fields=listing_id,title,url,mainimage&keywords=Women%20Scarf&api_key=w31e04vuvggcsv6iods79ol7
-
+# ADD PRICE TO API CALL
 def EtsyResults(c_concepts, c_color): # takes list from Clarifai results as an argument, and color
     """Construct Etsy API request using concepts extrated from Clarifai"""
-    api_request_str = api_request_str = 'https://openapi.etsy.com/v2/listings/active?includes=MainImage(url_170x135)&fields=listing_id,title,url,mainimage&color_accuracy=30&color=' + c_color + '&keywords='
+    api_request_str = api_request_str = 'https://openapi.etsy.com/v2/listings/active?includes=MainImage(url_170x135)&fields=listing_id,title,url,price,mainimage&color_accuracy=30&color=' + c_color + '&keywords='
     for concept in c_concepts: #iterating through list of concepts from Clarifai
         concept = concept.replace(' ', '%20') # convert spaces into %20 for API request
         concept = concept.replace("'s", '') # remove 's from strings
@@ -127,6 +127,7 @@ def register_user():
     email = request.form["email"]
     password = request.form["password"]
     age = int(request.form["age"])
+    #add gender here
     size = request.form["size"]
     pant_size = int(request.form["pant_size"])
     shoe_size = float(request.form["shoe_size"])
@@ -233,11 +234,30 @@ def show_results():
 @app.route('/add-bookmark.json', methods=['POST'])
 def save_result():
     """handle users saving Etsy results""" 
-    ### grab data from the saves and commit to EtsyResults table in DB
-    # saved_items = request.args.get("[insert saved stuff here from HTML/JQUERY]")
-    # put saved_items - entire object - into session
-    # put saved_items listing ID into DB using a loop (but what if user un-saves?)
-    pass
+    listing_data = request.form.get("listing_data") #shouldn't need to load because listing_data should be json object
+    print "CHECK OUT LISTING DATA TYPE HERE _______________!!!!!!!!!!!!!!!! SHOULD BE JSON OBJECT"
+    print type(listing_data)
+
+    etsy_id = listing_data["listing_id"] # grab etsy_ID from JSON object of listing data
+
+    #Check if listing already in DB?
+    listing = EtsyResult.query.filter(EtsyResult.etsy_listing_id == etsy_id).first()
+
+    #if listing it's not there in EtsyResult, create it!
+    if not listing:
+        listing = EtsyResult(etsy_listing_id=listing_data["listing_id"],
+                            listing_title=listing_data["title"],
+                            listing_url=listing_data["url"],
+                            listing_image=listing_data["MainImage"]['url_170x135'],
+                            listing_price=listing_data["price"])
+        db.session.add(listing)
+        db.session.commit()
+
+    #add the bookmark to bookmark table - regardless of whether or not listing has already been bookmarked
+    bookmark = Bookmark(etsy_listing_id=listing.listing_id,
+                        user_id=session["user_id"])
+    db.session.add(bookmark)
+    db.session.commit()
 
 
 @app.route('/bookmarks', methods=['GET'])

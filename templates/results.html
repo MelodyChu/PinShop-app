@@ -8,27 +8,28 @@
   {% for result in results %}
     <div>
       <a href="{{ result['url'] }}"><img src="{{ result['MainImage']['url_170x135'] }}" style="width:100px;height:100px;">{{ result['title'] }}</a>
-      <button class="save-button" data-etsy-id="{{ result['listing_id'] }}" >Save</button>
+      {# <p>{{ result['price'] }}</p> #}
+      {# <button class="save-button" data-listing-data="{{ json.dumps(result) }}" >Save</button> #}
+      <button class="save-button" data-listing-data="{{ result|tojson|safe }}" >Save</button> 
       {# is this the right place for Save? will it be rendered for each result? #}
     </div>
   {% endfor %}
 
+
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script> 
+<script>
+$(".save-button").click(function (evt) {
+    let listingData = $(this).data("listingData"); // may need JSON dumps here
+
+    let payload = {"listing_data": listingData} // does passing data always need to be in payload dictionary format?
+    $.post("/add-bookmark.json", payload, function (results) {
+        //give user some visual indication that this has happened
+        $('#save-button').html("Saved");
+        console.log("Finished saving Etsy result!");
+    });
+});
+
+</script>
+
 </body>
 </html>
-
-<!-- Note: When user saves a Etsy listing, want to pass above result into our /result POST route  -->
-<!-- Note: When user saves a Etsy listing, AJAX success call will turn the button blue & change to 'saved'  -->
-
-<!-- JQUERY SECTION
-function savedSuccess(results) {
-    var saved = results;
-    $('#save-button').html("Saved");
-    console.log("Finished saving Etsy result!");
-}
-
-function saveItem() {
-    $.post('/results', [ETSY DATA ON 1 LISTING], savedSuccess);
-    console.log("Finished sending AJAX");
-}
-
-$('#save-button').on('click', saveItem); -->
