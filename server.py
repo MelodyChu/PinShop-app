@@ -13,12 +13,13 @@ import pprint
 from etsy_py.api import EtsyAPI
 
 from model import connect_to_db, db, User, EtsyResult, Bookmark
+from helper import ClarifaiResults, EtsyResults, ClarifaiColor, set_val_user_id
 
 import os
 ETSY_KEY = os.environ.get('ETSY_KEY')
 
 # etsy_api = EtsyAPI(api_key=ETSY_KEY)
-etsy_api = EtsyAPI(api_key='w31e04vuvggcsv6iods79ol7')
+etsy_api = EtsyAPI(api_key=ETSY_KEY)
 
 
 c_app = ClarifaiApp() #put in app token!
@@ -111,8 +112,7 @@ def set_val_user_id(): #does this go here? this works
     db.session.execute(query, {'new_id': max_id + 1})
     db.session.commit()
 
-########################################################################
-#ROUTES GO HERE
+#ROUTES GO HERE ###########################
 
 @app.route('/register', methods=['GET']) 
 def register_form():
@@ -307,21 +307,6 @@ def view_bookmarks():
         #listing_dict[item_id] = EtsyResult.query.filter_by(etsy_listing_id=item_id).first() #should gete list of full etsy result back as a list
 
     return render_template('bookmarks.html',listing_list=listing_list) #pass list of etsy objects to jinja
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 #############

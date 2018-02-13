@@ -1,8 +1,5 @@
-<html>
-<head>
-    <title>PinShop</title>
-</head>
-<body>
+{% extends 'base.html' %}
+{% block content %}
     <h1>PinShop</h1>
     <div>
     <p><h3>Search for your favorite styles by using your pins and images!</h3></p>
@@ -16,10 +13,9 @@
     </div>
 
     <div class="form-group">
-      <p><input type="submit" value="Search on Etsy" class="btn"></p>
+      <p><input type="submit" value="Search on Etsy" class="btn btn-primary"></p>
     </div>
 
   </form>
 
-</body>
-</html>
+{% endblock %}

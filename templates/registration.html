@@ -1,8 +1,5 @@
-<html>
-<head>
-    <title>PinShop Sign Up</title>
-</head>
-<body>
+{% extends 'base.html' %}
+{% block content %}
     <h1>Register</h1>
 
     <form action="/register" method="POST">
@@ -58,10 +55,9 @@
       <p><i>* indicates optional field</i></p>
 
       <div class="form-group">
-        <input type="submit" value="Register" class="btn btn-danger">
+        <input type="submit" value="Register" class="btn btn-primary">
       </div>
 
     </form>
 
-</body>
-</html>
+{% endblock %}

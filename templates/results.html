@@ -1,9 +1,6 @@
-<html>
-<head>
-    <title>PinShop Results</title>
-    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script> 
-</head>
-<body>
+{% extends 'base.html' %}
+{% block content %}
+
     <h1>PinShop Etsy Results</h1>
 
 
@@ -13,7 +10,7 @@
       <p>{{ result['price'] }}</p>
       {# <button class="save-button" data-listingdata="{{ json.dumps(result) }}" >Save</button> #}
       {# <button class="save-button" data-listingdata="{{ result|tojson|safe }}" >Save</button> #}
-      <button class="save-button" data-listingdata="{{ result['listing_id'] }}" id="{{ result['listing_id'] }}">Save</button>
+      <button class="save-button" data-listingdata="{{ result['listing_id'] }}" >Save</button>
       {# is this the right place for Save? will it be rendered for each result? #}
     </div>
   {% endfor %}
@@ -23,9 +20,9 @@
     <script> // try document ready & load the jquery tag in the head
     $('.save-button').click(function (evt) {
         let listingdata = $(this).data("listingdata"); // may need JSON dumps here
-        $(this).html("saved");
+        // $(this).html("saved");
         // Given an id on a save-button
-        $('#{{ result["listing_id"] }}').html("saved");
+        
 
         let payload = {"listing_data": listingdata} // does passing data always need to be in payload dictionary format?
         // console.log(payload);
@@ -61,10 +58,9 @@
           // $('.save-button').html("saved");
           // $(this).html("saved");
         };
-        $(this).html("saved again");
+        $(this).html("Saved");
 })
 
 </script>
 
-</body>
-</html>
+{% endblock %}

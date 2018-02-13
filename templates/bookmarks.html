@@ -1,9 +1,7 @@
-<html>
-<head>
-    <title>Bookmarks</title>
-</head>
-<body>
-    <h1>Bookmarks go here!</h1>
+{% extends 'base.html' %}
+{% block content %}
+
+    <h1>Bookmarks</h1>
     {% for bookmark in listing_list %}
     <div>
       <a href="{{ bookmark.listing_url }}"><img src="{{ bookmark.listing_image }}" style="width:100px;height:100px;">{{ bookmark.listing_title }}</a>
@@ -11,5 +9,4 @@
     </div>
   {% endfor %}
 
-</body>
-</html>
+{% endblock %}

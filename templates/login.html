@@ -1,8 +1,5 @@
-<html>
-<head>
-    <title>PinShop LogIn</title>
-</head>
-<body>
+{% extends 'base.html' %}
+{% block content %}
     <h1>Log In</h1>
   <form action="/login" method="POST">
 
@@ -19,10 +16,9 @@
     </div>
 
     <div class="form-group">
-      <input type="submit" value="Log In" class="btn btn-danger">
+      <input type="submit" value="Log In" class="btn btn-primary">
     </div>
 
   </form>
 
-</body>
-</html>
+{% endblock %}
