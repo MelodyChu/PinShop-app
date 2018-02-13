@@ -1,33 +1,68 @@
 <html>
 <head>
     <title>PinShop Results</title>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script> 
 </head>
 <body>
     <h1>PinShop Etsy Results</h1>
 
+
   {% for result in results %}
     <div>
       <a href="{{ result['url'] }}"><img src="{{ result['MainImage']['url_170x135'] }}" style="width:100px;height:100px;">{{ result['title'] }}</a>
-      {# <p>{{ result['price'] }}</p> #}
-      {# <button class="save-button" data-listing-data="{{ json.dumps(result) }}" >Save</button> #}
-      <button class="save-button" data-listing-data="{{ result|tojson|safe }}" >Save</button> 
+      <p>{{ result['price'] }}</p>
+      {# <button class="save-button" data-listingdata="{{ json.dumps(result) }}" >Save</button> #}
+      {# <button class="save-button" data-listingdata="{{ result|tojson|safe }}" >Save</button> #}
+      <button class="save-button" data-listingdata="{{ result['listing_id'] }}" id="{{ result['listing_id'] }}">Save</button>
       {# is this the right place for Save? will it be rendered for each result? #}
     </div>
   {% endfor %}
 
 
-<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script> 
-<script>
-$(".save-button").click(function (evt) {
-    let listingData = $(this).data("listingData"); // may need JSON dumps here
+    
+    <script> // try document ready & load the jquery tag in the head
+    $('.save-button').click(function (evt) {
+        let listingdata = $(this).data("listingdata"); // may need JSON dumps here
+        $(this).html("saved");
+        // Given an id on a save-button
+        $('#{{ result["listing_id"] }}').html("saved");
 
-    let payload = {"listing_data": listingData} // does passing data always need to be in payload dictionary format?
-    $.post("/add-bookmark.json", payload, function (results) {
-        //give user some visual indication that this has happened
-        $('#save-button').html("Saved");
-        console.log("Finished saving Etsy result!");
-    });
-});
+        let payload = {"listing_data": listingdata} // does passing data always need to be in payload dictionary format?
+        // console.log(payload);
+        console.log(listingdata); 
+        console.log(typeof(listingdata));
+        $.get('/get-item-info', payload, get_item_info);
+
+        function get_item_info (response) {
+          console.log(response);
+          // let etsy_dict = {
+          //   "listing_url": response['listing_id'],
+          //   "title": response['title'],
+          //   "url": response['url'],
+          //   "price": response['price'],
+          //   "image": response["MainImage"]['url_170x135']
+          // };
+          $.ajax({
+            url: "/add-bookmark.json", 
+            dataType: 'json',
+            type: 'post',
+            contentType: 'application/json',
+            data: JSON.stringify(response),
+            processData: false,
+            success: function display_saved(results) { // would payload = requests in this case?
+            //give user some visual indication that this has happened
+            // $(this).html("Saved"); // need to debug; not working
+            console.log(results);
+            console.log("Finished saving Etsy result!");
+
+            }
+          });
+          // THIS WORKED
+          // $('.save-button').html("saved");
+          // $(this).html("saved");
+        };
+        $(this).html("saved again");
+})
 
 </script>
 

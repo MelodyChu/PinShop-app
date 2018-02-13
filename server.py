@@ -2,7 +2,7 @@
 
 from jinja2 import StrictUndefined
 
-from flask import Flask, render_template, request, flash, redirect, session, url_for
+from flask import Flask, render_template, request, flash, redirect, session, url_for, jsonify
 from flask_bcrypt import Bcrypt
 from flask_debugtoolbar import DebugToolbarExtension
 
@@ -12,12 +12,13 @@ import pprint
 
 from etsy_py.api import EtsyAPI
 
-from model import connect_to_db, db, User, EtsyResult 
+from model import connect_to_db, db, User, EtsyResult, Bookmark
 
 import os
 ETSY_KEY = os.environ.get('ETSY_KEY')
 
-etsy_api = EtsyAPI(api_key=ETSY_KEY)
+# etsy_api = EtsyAPI(api_key=ETSY_KEY)
+etsy_api = EtsyAPI(api_key='w31e04vuvggcsv6iods79ol7')
 
 
 c_app = ClarifaiApp() #put in app token!
@@ -52,7 +53,7 @@ def ClarifaiResults(image_URL):
 # ADD PRICE TO API CALL
 def EtsyResults(c_concepts, c_color): # takes list from Clarifai results as an argument, and color
     """Construct Etsy API request using concepts extrated from Clarifai"""
-    api_request_str = api_request_str = 'https://openapi.etsy.com/v2/listings/active?includes=MainImage(url_170x135)&fields=listing_id,title,url,price,mainimage&color_accuracy=30&color=' + c_color + '&keywords='
+    api_request_str = 'https://openapi.etsy.com/v2/listings/active?includes=MainImage(url_170x135)&fields=listing_id,title,url,price,mainimage&color_accuracy=30&color=' + c_color + '&keywords='
     for concept in c_concepts: #iterating through list of concepts from Clarifai
         concept = concept.replace(' ', '%20') # convert spaces into %20 for API request
         concept = concept.replace("'s", '') # remove 's from strings
@@ -138,6 +139,10 @@ def register_user():
     db.session.add(new_user) #specific to the DB session not flask session - to confirm
     db.session.commit()
 
+    session["user_id"] = User.query.filter_by(email=new_user.email).first().user_id #CHECK THIS; make sure user gets into session once they register
+    print "SEE SESSION HERE!!!!!  **********************"
+    print session # to debug
+
     flash("User {} added.".format(email))
     return redirect("/search")
 
@@ -151,6 +156,9 @@ def login_form():
 @app.route('/login', methods=['POST'])
 def login_process():
     """Process login."""
+    # OAUTH NOTES: URL that works for pinterest: 
+    # https://api.pinterest.com/oauth/?state=768uyFys&scope=read_public&client_id=4946875117467610426&redirect_uri=http://localhost:5001/search&response_type=code
+
 
     # Get form variables
     email = request.form["email"]
@@ -167,6 +175,7 @@ def login_process():
         return redirect("/login")
 
     session["user_id"] = user.user_id # session ID will be BIG; includes Etsy payload below
+    # need to put this in registration as well
 
     flash("Logged in")
     return redirect("/search".format(user.user_id))
@@ -231,17 +240,39 @@ def show_results():
 
     return render_template("results.html", results=results) 
 
+@app.route('/get-item-info', methods=['GET'])
+def get_info():
+    """Uses Etsy listing ID of saved item to make API call to get the rest of Etsy's info"""
+    listing_info = request.args.get('listing_data') #get listing data from ID
+    etsy_api_data = etsy_api.get('https://openapi.etsy.com/v2/listings/' + str(listing_info) + '/?includes=MainImage(url_170x135)&fields=listing_id,title,url,price,mainimage') #not sure if redundant
+    # https://openapi.etsy.com/v2/listings/114325374/?api_key=w31e04vuvggcsv6iods79ol7 <-- successful call
+    etsy_api_data = etsy_api_data.json()
+    print etsy_api_data
+    print type(etsy_api_data)
+    print type(etsy_api_data['results'][0]) #debugging
+    print (etsy_api_data['results'][0])
+    #return redirect(url_for('save_result', listing_info=jsonify(etsy_api_data['results']))) # now need to get this into add bookmark route
+    return jsonify(etsy_api_data['results'][0])
+
 @app.route('/add-bookmark.json', methods=['POST'])
 def save_result():
-    """handle users saving Etsy results""" 
-    listing_data = request.form.get("listing_data") #shouldn't need to load because listing_data should be json object
+    """handle users saving Etsy results, with JSON data from get-item-info route""" 
+    print request
+    listing_data = request.get_json()  #shouldn't need to load because listing_data should be json object
+    # listing_url = request.args.get("url")
     print "CHECK OUT LISTING DATA TYPE HERE _______________!!!!!!!!!!!!!!!! SHOULD BE JSON OBJECT"
-    print type(listing_data)
+    print type(listing_data) #should be string; it is type UNICODE
+    print listing_data
+    # import pdb; pdb.set_trace()
 
-    etsy_id = listing_data["listing_id"] # grab etsy_ID from JSON object of listing data
+
+    #etsy_id = listing_data_3['u\'listing_id\''] # grab etsy_ID from JSON object of listing data
+    etsy_id = listing_data['listing_id']
 
     #Check if listing already in DB?
     listing = EtsyResult.query.filter(EtsyResult.etsy_listing_id == etsy_id).first()
+    print "SEE LISTING HERE***********************"
+    print listing
 
     #if listing it's not there in EtsyResult, create it!
     if not listing:
@@ -254,27 +285,29 @@ def save_result():
         db.session.commit()
 
     #add the bookmark to bookmark table - regardless of whether or not listing has already been bookmarked
-    bookmark = Bookmark(etsy_listing_id=listing.listing_id,
+    bookmark = Bookmark(etsy_listing_id=listing.etsy_listing_id,
                         user_id=session["user_id"])
     db.session.add(bookmark)
     db.session.commit()
+
+    return redirect('/bookmarks') #what does the viewfunction actually return here
 
 
 @app.route('/bookmarks', methods=['GET'])
 def view_bookmarks():
     """display the Etsy search rsults that the user has saved"""
-    # grab saved items from user session in Jinja
-    # iterate through each item
-    # return render_template
-    pass 
+    user_id = session.get('user_id') #grab user ID from session
+    user_bookmarks = Bookmark.query.filter_by(user_id=user_id).all() #get all bookmarks for 1 user
+    print user_bookmarks
+    
+    listing_list = [] #dictionary of listings, with listing_ID as key and other attributes like price as values
+    for item in user_bookmarks:
+        item_id = item.etsy_listing_id
+        listing_list.append(EtsyResult.query.filter_by(etsy_listing_id=item_id).first()) #put each full Etsy object into lilsting_list
+        #listing_dict[item_id] = EtsyResult.query.filter_by(etsy_listing_id=item_id).first() #should gete list of full etsy result back as a list
 
+    return render_template('bookmarks.html',listing_list=listing_list) #pass list of etsy objects to jinja
 
-
-## taking inputs from html form; 2 functions for clarifai API & Etsy API
-# results page (get)
-# results page - /bookmark (post) - put favorites in the database
-
-# cases where API goes down; email case insensitive
 
 
 
