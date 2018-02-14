@@ -8,10 +8,11 @@
     <div>
       <a href="{{ result['url'] }}"><img src="{{ result['MainImage']['url_170x135'] }}" style="width:100px;height:100px;">{{ result['title'] }}</a>
       <p>{{ result['price'] }}</p>
-      {# <button class="save-button" data-listingdata="{{ json.dumps(result) }}" >Save</button> #}
-      {# <button class="save-button" data-listingdata="{{ result|tojson|safe }}" >Save</button> #}
-      <button class="save-button" data-listingdata="{{ result['listing_id'] }}" >Save</button>
-      {# is this the right place for Save? will it be rendered for each result? #}
+      {% if "user_id" in session %}
+          {# <button class="save-button" data-listingdata="{{ json.dumps(result) }}" >Save</button> #}
+          {# <button class="save-button" data-listingdata="{{ result|tojson|safe }}" >Save</button> #}
+          <button class="save-button" data-listingdata="{{ result['listing_id'] }}" >Save</button>
+      {% endif %}
     </div>
   {% endfor %}
 
@@ -32,13 +33,7 @@
 
         function get_item_info (response) {
           console.log(response);
-          // let etsy_dict = {
-          //   "listing_url": response['listing_id'],
-          //   "title": response['title'],
-          //   "url": response['url'],
-          //   "price": response['price'],
-          //   "image": response["MainImage"]['url_170x135']
-          // };
+
           $.ajax({
             url: "/add-bookmark.json", 
             dataType: 'json',

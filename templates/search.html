@@ -5,7 +5,7 @@
     <p><h3>Search for your favorite styles by using your pins and images!</h3></p>
 </div>
      <form action="/search" method="POST">
-
+      <p><h4>Search by Image URL...</h4></p>
     <div class="form-group">
       <label>Image URL:
           <input type="url" name="image_URL" class="image_URL">
@@ -17,5 +17,12 @@
     </div>
 
   </form>
+  <p><h4>...Or search sample pins</h4></p>
+  {% for pin in melody_pins %} 
+    <div>
+      <a href="{{ pin['link'] }}"><img src="{{ pin['image'] }}">{{ pin['description'] }}</a>
+      {# selector checkbox <button class="" data-listingdata="" >Save</button> #}
+    </div>
+  {% endfor %}
 
 {% endblock %}

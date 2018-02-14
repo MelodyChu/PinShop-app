@@ -10,6 +10,8 @@ from clarifai.rest import ClarifaiApp
 import json
 import pprint
 
+import requests
+
 from etsy_py.api import EtsyAPI
 
 from model import connect_to_db, db, User, EtsyResult, Bookmark
@@ -100,6 +102,25 @@ def ClarifaiColor(image_URL): # can optimize next week; need less for loops
             print d['raw_hex'][1:]
             return d['raw_hex'][1:] #returns a string of 2nd highest hex value
 
+def get_melody_pins():
+    """Make request to Pinterest to get my pins specifically; process to get to fields I need. Returns list of dictionaries"""
+    r = requests.get("https://api.pinterest.com/v3/pidgets/boards/melodychuchu/fashion/pins/") # get my pins from fashion board
+    melody_pins = r.json()
+
+    pin_list = [] #list of all pin dictionaries
+
+    for pin in melody_pins["data"]["pins"]: #data is a list of dictionaries; each pin is a dictionary containinin all info about pin
+        pin_dict = {} #each pin will be individual dictionary
+        pin_dict["id"] = pin["id"]
+        pin_dict["description"] = pin["description"] 
+        pin_dict["dominant_color"] = pin["dominant_color"]
+        pin_dict["link"] = pin["link"]
+        pin_dict["image"] = pin["images"]["237x"]["url"]
+        pin_list.append(pin_dict) #append created filtered dictionaries into list
+
+    return pin_list # will change to return
+
+
 def set_val_user_id(): #does this go here? this works
     """Set value for the next user_id after seeding database"""
 
@@ -183,7 +204,7 @@ def login_process():
 
 @app.route('/logout')
 def logout():
-    """Log out."""
+    """Log out user."""
 
     del session["user_id"]
     flash("Logged Out.")
@@ -193,10 +214,10 @@ def logout():
 @app.route('/search', methods=['GET', 'POST']) # how to customize search URL per user?
 def user_search():
     if request.method == 'GET': 
-        # possibly clear previous session query here; every time user searches, clears previous Etsy sult payload
-        # if session.my_etsy_list: # if there is something in my_etsy_list from a previous search
-        #   session.pop('my_etsy_list', []) -- check this
-        return render_template("search.html")
+        melody_pins = get_melody_pins() # this is a list of dicts; will customize once i implement user pin pulls
+        print "******LOOK HERE FOR PINS!!!!!!!!!!*********************************"
+        print melody_pins
+        return render_template("search.html", melody_pins=melody_pins) # pass melody_pins to jinja
     if request.method == 'POST':
         imageURL = request.form.get('image_URL') # get image URL from the form
         clarifai_concepts = None
@@ -215,10 +236,6 @@ def user_search():
             try: 
                 etsy_data = EtsyResults(clarifai_concepts, clarifai_color) ### is this redundant? 
                 print type(etsy_data) #etsy_data is a list
-                # session['my_etsy_list'] = etsy_data # try putting into session
-                # # print "SEE SESSION HERE BELOW *********************************"
-                # # print session
-                # return redirect('/results') #if successful, go to results page
                 return redirect(url_for('show_results', results=json.dumps(etsy_data)))
 
             except:
