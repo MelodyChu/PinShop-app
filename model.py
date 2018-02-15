@@ -13,7 +13,7 @@ db = SQLAlchemy()
 # Model definitions
 
 class User(db.Model):
-    """User of PinShop app; likely to implement user functionality fully in v2"""
+    """User of PinShop app; likely to implement user functionality fully in v2. For now, pin token is pin username"""
 
     __tablename__ = "users"
 
@@ -27,7 +27,7 @@ class User(db.Model):
     size = db.Column(db.String(64), nullable=True) #selector for XS, small, medium, large
     pant_size = db.Column(db.Integer, nullable=True) #in inches; may be an extra column
     shoe_size = db.Column(db.Float, nullable=True) #US shoe sizes
-    pinterest_token = db.Column(db.String(100), nullable=True) #check pinterest user token formatting
+    pinterest_token = db.Column(db.String(100), nullable=True) #REPURPOSE to be pinterest username
 
     bookmarks = db.relationship('Bookmark') #relationship to bookmark
 

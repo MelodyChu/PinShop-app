@@ -10,7 +10,7 @@ from clarifai.rest import ClarifaiApp
 import json
 import pprint
 
-import requests
+import requests #check this
 
 from etsy_py.api import EtsyAPI
 
@@ -107,9 +107,48 @@ def get_melody_pins():
     r = requests.get("https://api.pinterest.com/v3/pidgets/boards/melodychuchu/fashion/pins/") # get my pins from fashion board
     melody_pins = r.json()
 
-    pin_list = [] #list of all pin dictionaries
+    pin_list = [] # 
 
     for pin in melody_pins["data"]["pins"]: #data is a list of dictionaries; each pin is a dictionary containinin all info about pin
+        pin_dict = {} #each pin will be individual dictionary
+        pin_dict["id"] = pin["id"]
+        pin_dict["description"] = pin["description"] 
+        pin_dict["dominant_color"] = pin["dominant_color"]
+        pin_dict["link"] = pin["link"]
+        pin_dict["image"] = pin["images"]["237x"]["url"]
+        pin_list.append(pin_dict) #append created filtered dictionaries into list
+
+    return pin_list # will change to return
+
+def get_user_pins_no_board(p_username): # may need to get pinterest username from DB. need to do board name conversion
+    """Make request ot Pinterest to get **user** pins with provided board; process to get fields. Returns list of dictionaries where e/ dict is pin obejct"""
+    pin_request_str = "https://api.pinterest.com/v3/pidgets/users/" + str(p_username) + "/pins/" # get my pins from fashion board
+    r = requests.get(pin_request_str)
+    user_pins = r.json()
+
+    pin_list = [] #list of all pin dictionaries
+    
+    for pin in user_pins["data"]["pins"]: #data is a list of dictionaries; each pin is a dictionary containinin all info about pin
+        pin_dict = {} #each pin will be individual dictionary
+        pin_dict["id"] = pin["id"]
+        pin_dict["description"] = pin["description"] 
+        pin_dict["dominant_color"] = pin["dominant_color"]
+        pin_dict["link"] = pin["link"]
+        pin_dict["image"] = pin["images"]["237x"]["url"]
+        pin_list.append(pin_dict) #append created filtered dictionaries into list
+
+    return pin_list # will change to return
+
+def get_user_pins_given_board(p_username, board): # may need to get pinterest username from DB. need to do board name conversion
+    """Make request ot Pinterest to get **user** pins with provided board; process to get fields. Returns list of dictionaries where e/ dict is pin obejct"""
+    board = board.replace(' ', '-') #replace spaces with dashes
+    pin_request_str = "https://api.pinterest.com/v3/pidgets/boards/" + str(p_username) + "/" + str(board) + "/pins/" # get my pins from fashion board
+    r = requests.get(pin_request_str)
+    user_pins = r.json()
+
+    pin_list = [] #list of all pin dictionaries
+    
+    for pin in user_pins["data"]["pins"]: #data is a list of dictionaries; each pin is a dictionary containinin all info about pin
         pin_dict = {} #each pin will be individual dictionary
         pin_dict["id"] = pin["id"]
         pin_dict["description"] = pin["description"] 
@@ -148,21 +187,24 @@ def register_user():
     # Get form variables
     email = request.form["email"]
     password = request.form["password"]
+    pinterest_token = request.form["pin-username"] #using Pinterest username as stand-in for token w/o OAuth
     age = int(request.form["age"])
-    #add gender here
+    gender = request.form["gender"]
     size = request.form["size"]
     pant_size = int(request.form["pant_size"])
     shoe_size = float(request.form["shoe_size"])
 
     pw_hash = bcrypt.generate_password_hash(password) #encrypting passowrds
-    new_user = User(email=email, password=pw_hash, age=age, size=size, pant_size=pant_size, shoe_size=shoe_size)
+    new_user = User(email=email, password=pw_hash, pinterest_token=pinterest_token, age=age, gender=gender, size=size, pant_size=pant_size, shoe_size=shoe_size)
 
     db.session.add(new_user) #specific to the DB session not flask session - to confirm
     db.session.commit()
 
     session["user_id"] = User.query.filter_by(email=new_user.email).first().user_id #CHECK THIS; make sure user gets into session once they register
+    session["pin_username"] = User.query.filter_by(email=new_user.email).first().pinterest_token 
     print "SEE SESSION HERE!!!!!  **********************"
     print session # to debug
+    # <SecureCookieSession {u'pin_username': u'melodychuchu', u'user_id': 10}>
 
     flash("User {} added.".format(email))
     return redirect("/search")
@@ -196,6 +238,8 @@ def login_process():
         return redirect("/login")
 
     session["user_id"] = user.user_id # session ID will be BIG; includes Etsy payload below
+    session["pin_username"] = user.pinterest_token
+    print session #debugging
     # need to put this in registration as well
 
     flash("Logged in")
@@ -205,8 +249,10 @@ def login_process():
 @app.route('/logout')
 def logout():
     """Log out user."""
-
+    print session["pin_username"]
     del session["user_id"]
+    #import pdb; pdb.set_trace()
+    del session["pin_username"] # <SecureCookieSession {'user_id': 10, u'pin_username': u'melodychuchu'}>
     flash("Logged Out.")
     return redirect("/search")
 
@@ -214,12 +260,32 @@ def logout():
 @app.route('/search', methods=['GET', 'POST']) # how to customize search URL per user?
 def user_search():
     if request.method == 'GET': 
-        melody_pins = get_melody_pins() # this is a list of dicts; will customize once i implement user pin pulls
-        print "******LOOK HERE FOR PINS!!!!!!!!!!*********************************"
-        print melody_pins
-        return render_template("search.html", melody_pins=melody_pins) # pass melody_pins to jinja
+        if not session["pin_username"]: #if user has not provided a pinterest username
+            melody_pins = get_melody_pins() # this is a list of dicts; will customize once i implement user pin pulls
+            print "******LOOK HERE FOR PINS!!!!!!!!!!*********************************"
+            # print melody_pins
+            # print session 
+            # import pdb; pdb.set_trace()
+            return render_template("search.html", melody_pins=melody_pins) # pass melody_pins to jinja
+        else: # if user has pin username
+            
+            try:
+                board = request.args.get("board-name") #use request.args to get board name from input HTML
+                user_pins = get_user_pins_given_board(session["pin_username"], board)
+                print "***********ROUTE 1 *******************"
+            except:
+                user_pins = get_user_pins_no_board(session["pin_username"]) #pulls all pins for that user
+                print "***********ROUTE 2 *******************"
+            return render_template("search.html", melody_pins=user_pins) # check melody pins which one this == 
+            
+
     if request.method == 'POST':
+        # try:
         imageURL = request.form.get('image_URL') # get image URL from the form
+        print "***********IMAGE URL 1********************"
+        # except:
+        #     imageURL = request.args.get('image') # get image URL from selected pin image radio button
+        #     print "***********IMAGE URL 2********************"
         clarifai_concepts = None
         # clarifai_color = None # adding clarifai color here as well
         try:
@@ -247,6 +313,7 @@ def user_search():
     else:
         print ("No process could happen! SadFace :( ")
         return redirect('/search')
+
 
 @app.route('/results', methods=['GET'])
 def show_results(): 
