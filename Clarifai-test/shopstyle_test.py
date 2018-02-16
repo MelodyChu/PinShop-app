@@ -32,7 +32,7 @@ def ShopStyleResults(c_concepts, c_color): # make sure to include size too
     """Construct ShopStyle API request using concepts extrated from Clarifai & pinterest"""
     # sample concept list retured from Clarfai Results function: [u'Bodysuit', u'Midi Skirt', u"Women's Shorts"]
     # r = api.get('https://openapi.etsy.com/v2/listings/active?fields=listing_id,title,url&keywords=wedding,ring,ruby')
-    api_request_str = "http://api.shopstyle.com/api/v2/products?pid=uid2384-40566372-99&offset=0&limit=3&fts=" + c_color + "+"
+    api_request_str = "http://api.shopstyle.com/api/v2/products?pid=uid2384-40566372-99&offset=0&limit=3&fts=" #+ c_color + "+"
     for concept in c_concepts:
         #concept = concept.replace(' ', '+') # convert spaces into %20 for API request
         concept = concept.replace("'s", '') # remove 's from strings

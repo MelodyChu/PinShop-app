@@ -59,9 +59,13 @@ def ClarifaiResults(image_URL, pin_description=""): #pin descr is string
     new_concept_list = [] #remove duplicates
     for word in c_concepts:
         word = word.replace("'s", '')
-        word = word.strip('-=&#~+')
+        word = word.strip('-=&#~+/,0123456789.')
+        word = word.lower()
         if word not in new_concept_list:
             new_concept_list.append(word)
+    
+    if "' '" in new_concept_list: # remove spaces
+        new_concept_list.remove("' '")
 
     if len(new_concept_list) > 6: #make sure total search list not greater than 6 keywords
         new_concept_list = new_concept_list[:6]
@@ -91,6 +95,33 @@ def EtsyResults(c_concepts, c_color): # takes list from Clarifai results as an a
 
 
     return etsy_data_list # returns a list of dictionaries associated with etsy results key
+
+def ShopStyleResults(c_concepts, c_color): # make sure to include size too
+    """Construct ShopStyle API request using concepts extrated from Clarifai & pinterest"""
+
+    api_request_str = "http://api.shopstyle.com/api/v2/products?pid=uid2384-40566372-99&offset=0&limit=3&fts=" #+ c_color + "+"
+    for concept in c_concepts:
+        #concept = concept.replace(' ', '+') # convert spaces into %20 for API request
+        concept = concept.replace("'s", '') # remove 's from strings
+        api_request_str += concept + '+' #append all keywords to end of URL
+    
+    api_request_str = api_request_str[:-1] # strip plus from end of API request str
+    print api_request_str # debugging
+    shop_request = requests.get(api_request_str)
+    shop_data = shop_request.json()
+
+    total_list = []
+    for prop in shop_data["products"]: #create the shop dictionary here
+        shop_dict = {}
+
+        shop_dict["id"] = prop["id"]
+        shop_dict["name"] = prop["name"]
+        shop_dict["price"] = prop["priceLabel"]
+        shop_dict["image_url"] = prop["image"]["sizes"]["Best"]["url"]
+        shop_dict["url"] = prop["clickUrl"]
+        total_list.append(shop_dict)
+    
+    return total_list #returns list of dictionaries associated with shopstyle item
 
 # Color query: https://openapi.etsy.com/v2/listings/active?includes=MainImage(url_170x135)&fields=listing_id,title,url,mainimage&keywords=Women%20Scarf&color=0000FF&color_accuracy=30&api_key=w31e04vuvggcsv6iods79ol7
 
@@ -318,12 +349,12 @@ def user_search():
             flash("Clarifai API failed to return color result")
         if clarifai_concepts is not None and clarifai_color is not None: # if there is a concept list returned; pass those to the function
             try: 
-                etsy_data = EtsyResults(clarifai_concepts, clarifai_color) ### is this redundant? 
-                print type(etsy_data) #etsy_data is a list
-                return redirect(url_for('show_results', results=json.dumps(etsy_data)))
+                shop_data = ShopStyleResults(clarifai_concepts, clarifai_color) ### is this redundant? 
+                print type(shop_data) #etsy_data is a list
+                return redirect(url_for('show_results', results=json.dumps(shop_data)))
 
             except:
-                print ("Etsy API failed to return results")
+                print ("Shopstyle API failed to return results")
                 flash("Clarifai API failed to return results")
         else:
             print ("Nothing returned o-noes")
@@ -340,49 +371,48 @@ def show_results():
     results = json.loads(request.args.get('results')) #changes to list of dicts
     #import pdb; pdb.set_trace()
 
-    return render_template("results.html", results=results) 
+    return render_template("results.html", results=results) #This works for shopstyle! YAY!
 
 @app.route('/get-item-info', methods=['GET'])
 def get_info():
     """Uses Etsy listing ID of saved item to make API call to get the rest of Etsy's info"""
     listing_info = request.args.get('listing_data') #get listing data from ID
-    etsy_api_data = etsy_api.get('https://openapi.etsy.com/v2/listings/' + str(listing_info) + '/?includes=MainImage(url_170x135)&fields=listing_id,title,url,price,mainimage') #not sure if redundant
-    # https://openapi.etsy.com/v2/listings/114325374/?api_key=w31e04vuvggcsv6iods79ol7 <-- successful call
-    etsy_api_data = etsy_api_data.json()
-    print etsy_api_data
-    print type(etsy_api_data)
-    print type(etsy_api_data['results'][0]) #debugging
-    print (etsy_api_data['results'][0])
+    print listing_info
+    request_str = 'http://api.shopstyle.com/api/v2/products/' + str(listing_info) + '?pid=uid2384-40566372-99'
+    print request_str
+    shop_api_data = requests.get(request_str) #not sure if redundant
+    shop_api_data = shop_api_data.json()
+    print "SHOP API DATA HEREEEE!!!!!! FROM GET ITEM INFO"
+    print shop_api_data #CHECK & debug
+    # print type(etsy_api_data)
+    # print type(etsy_api_data['results'][0]) #debugging
+    # print (etsy_api_data['results'][0])
     #return redirect(url_for('save_result', listing_info=jsonify(etsy_api_data['results']))) # now need to get this into add bookmark route
-    return jsonify(etsy_api_data['results'][0])
+    return jsonify(shop_api_data) #['results'][0])
 
 @app.route('/add-bookmark.json', methods=['POST'])
 def save_result():
     """handle users saving Etsy results, with JSON data from get-item-info route""" 
-    print request
-    listing_data = request.get_json()  #shouldn't need to load because listing_data should be json object
-    # listing_url = request.args.get("url")
+    # print request
+    listing_data = request.get_json() #should get JSON blob back for shopstyle API item info
     print "CHECK OUT LISTING DATA TYPE HERE _______________!!!!!!!!!!!!!!!! SHOULD BE JSON OBJECT"
     print type(listing_data) #should be string; it is type UNICODE
     print listing_data
-    # import pdb; pdb.set_trace()
-
-
-    #etsy_id = listing_data_3['u\'listing_id\''] # grab etsy_ID from JSON object of listing data
-    etsy_id = listing_data['listing_id']
+    
+    shop_id = listing_data['id']
 
     #Check if listing already in DB?
-    listing = EtsyResult.query.filter(EtsyResult.etsy_listing_id == etsy_id).first()
+    listing = EtsyResult.query.filter(EtsyResult.etsy_listing_id == shop_id).first()
     print "SEE LISTING HERE***********************"
     print listing
 
     #if listing it's not there in EtsyResult, create it!
     if not listing:
-        listing = EtsyResult(etsy_listing_id=listing_data["listing_id"],
-                            listing_title=listing_data["title"],
-                            listing_url=listing_data["url"],
-                            listing_image=listing_data["MainImage"]['url_170x135'],
-                            listing_price=listing_data["price"])
+        listing = EtsyResult(etsy_listing_id=listing_data["id"],
+                            listing_title=listing_data["name"],
+                            listing_url=listing_data["clickUrl"],
+                            listing_image=listing_data["image"]["sizes"]["Best"]["url"],
+                            listing_price=listing_data["price"]) # not going to use price $ label here
         db.session.add(listing)
         db.session.commit()
 
@@ -393,6 +423,7 @@ def save_result():
     db.session.commit()
 
     return redirect('/bookmarks') #what does the viewfunction actually return here
+    
 
 
 @app.route('/bookmarks', methods=['GET'])
@@ -406,7 +437,7 @@ def view_bookmarks():
     for item in user_bookmarks:
         item_id = item.etsy_listing_id
         listing_list.append(EtsyResult.query.filter_by(etsy_listing_id=item_id).first()) #put each full Etsy object into lilsting_list
-        #listing_dict[item_id] = EtsyResult.query.filter_by(etsy_listing_id=item_id).first() #should gete list of full etsy result back as a list
+        
 
     return render_template('bookmarks.html',listing_list=listing_list) #pass list of etsy objects to jinja
 

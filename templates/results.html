@@ -1,17 +1,17 @@
 {% extends 'base.html' %}
 {% block content %}
 
-    <h1>PinShop Etsy Results</h1>
+    <h1>PinShop Results</h1>
 
 
   {% for result in results %}
     <div>
-      <a href="{{ result['url'] }}"><img src="{{ result['MainImage']['url_170x135'] }}" style="width:100px;height:100px;">{{ result['title'] }}</a>
+      <a href="{{ result['url'] }}"><img src="{{ result['image_url'] }}" style="width:100px;height:200px;">{{ result['name'] }}</a>
       <p>{{ result['price'] }}</p>
       {% if "user_id" in session %}
           {# <button class="save-button" data-listingdata="{{ json.dumps(result) }}" >Save</button> #}
           {# <button class="save-button" data-listingdata="{{ result|tojson|safe }}" >Save</button> #}
-          <button class="save-button" data-listingdata="{{ result['listing_id'] }}" >Save</button>
+          <button class="save-button" data-listingdata="{{ result['id'] }}" >Save</button>
       {% endif %}
     </div>
   {% endfor %}
@@ -45,7 +45,7 @@
             //give user some visual indication that this has happened
             // $(this).html("Saved"); // need to debug; not working
             //console.log(results);
-            console.log("Finished saving Etsy result!");
+            console.log("Finished saving ShopStyle API result!");
 
             }
           });
