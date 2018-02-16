@@ -40,17 +40,33 @@ app.jinja_env.undefined = StrictUndefined
 ############
 # HELPER FUNCTIONS (to go into another file later)
 
-def ClarifaiResults(image_URL):
-    """Get list of concepts extracted from Clarifai API with <0.5 confidence coeff"""
-    c_concepts = [] #empty list for concepts returned from Clarifai; put this into helper function
+def ClarifaiResults(image_URL, pin_description=""): #pin descr is string
+    """Get list of concepts from Clarifai *combined with Pinterest description; returns LIST of concepts"""
+    if len(pin_description) > 0:
+        c_concepts = pin_description.split(" ") #empty list for concepts returned from Clarifai; put this into helper function
+        c_concepts = c_concepts[:4] # no more than 4 keywords from pinterest
+    else:
+        c_concepts = []
+
     c_response = c_model.predict_by_url(url=image_URL)
     concepts = c_response['outputs'][0]['data']['concepts']
         
     for concept in concepts: # for each mini dictionary in concepts
         if concept['value'] > 0.5:
-            c_concepts.append(concept['name'])
-    print c_concepts
-    return c_concepts 
+            a = concept['name'].split()
+            c_concepts += a # now we have list of concepts
+
+    new_concept_list = [] #remove duplicates
+    for word in c_concepts:
+        word = word.replace("'s", '')
+        word = word.strip('-=&#~+')
+        if word not in new_concept_list:
+            new_concept_list.append(word)
+
+    if len(new_concept_list) > 6: #make sure total search list not greater than 6 keywords
+        new_concept_list = new_concept_list[:6]
+
+    return new_concept_list
 
 # GET MAIN IMAGE FROM ETSY: https://openapi.etsy.com/v2/listings/active?includes=MainImage(url_170x135)&fields=listing_id,title,url,mainimage&keywords=Women%20Scarf&api_key=w31e04vuvggcsv6iods79ol7
 # ADD PRICE TO API CALL
@@ -59,7 +75,7 @@ def EtsyResults(c_concepts, c_color): # takes list from Clarifai results as an a
     api_request_str = 'https://openapi.etsy.com/v2/listings/active?includes=MainImage(url_170x135)&fields=listing_id,title,url,price,mainimage&color_accuracy=30&color=' + c_color + '&keywords='
     for concept in c_concepts: #iterating through list of concepts from Clarifai
         concept = concept.replace(' ', '%20') # convert spaces into %20 for API request
-        concept = concept.replace("'s", '') # remove 's from strings
+        #concept = concept.replace("'s", '') # remove 's from strings
         api_request_str += concept + ',' #append all keywords to end of URL
     
     api_request_str = api_request_str[:-1] # strip comma from end of API request str
@@ -260,7 +276,7 @@ def logout():
 @app.route('/search', methods=['GET', 'POST']) # how to customize search URL per user?
 def user_search():
     if request.method == 'GET': 
-        if not session["pin_username"]: #if user has not provided a pinterest username
+        if not session.get("pin_username"): #if user has not provided a pinterest username
             melody_pins = get_melody_pins() # this is a list of dicts; will customize once i implement user pin pulls
             print "******LOOK HERE FOR PINS!!!!!!!!!!*********************************"
             # print melody_pins
@@ -282,14 +298,16 @@ def user_search():
     if request.method == 'POST':
         # try:
         imageURL = request.form.get('image_URL') # get image URL from the form
-        print "***********IMAGE URL 1********************"
+        pin_description = request.form.get("image_desc") 
+        print "***********PIN DESCRIPTION********************"
+        print pin_description
         # except:
         #     imageURL = request.args.get('image') # get image URL from selected pin image radio button
         #     print "***********IMAGE URL 2********************"
         clarifai_concepts = None
         # clarifai_color = None # adding clarifai color here as well
         try:
-            clarifai_concepts = ClarifaiResults(imageURL)
+            clarifai_concepts = ClarifaiResults(imageURL, pin_description) #put pin_description in once it works; currently returns none
         except:
             print ("Clarifai API failed to return concept results")
             flash("Clarifai API failed to return concept results")
