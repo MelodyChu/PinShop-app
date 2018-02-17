@@ -18,40 +18,94 @@ color_model = c_app.models.get('color')
 
 #pprint.pprint(color_concepts)
 
+# def ClarifaiColor(image_URL):
+#     """function to get 2nd maximum color name from Clarifai color model, as a string"""
+#     color_response = color_model.predict_by_url(url=image_URL)
+#     color_concepts = color_response['outputs'][0]['data']['colors']
+
+#     concept_sort = sorted(color_concepts, key=lambda k: k['value'])
+
+#     #print new_concepts
+#     """[{u'w3c': {u'hex': u'#000000', u'name': u'Black'}, u'raw_hex': u'#211611', u'value': 0.07}, 
+#     {u'w3c': {u'hex': u'#d2b48c', u'name': u'Tan'}, u'raw_hex': u'#daa98f', u'value': 0.11275}, 
+#     {u'w3c': {u'hex': u'#2f4f4f', u'name': u'DarkSlateGray'}, u'raw_hex': u'#264f3f', u'value': 0.298}, 
+#     {u'w3c': {u'hex': u'#fff0f5', u'name': u'LavenderBlush'}, u'raw_hex': u'#eee5e6', u'value': 0.51925}]"""
+    
+#     #print new_concepts[-2]
+#     #print type(new_concepts[-2])
+#     color_name = concept_sort[-2]['w3c']['name'] #splice values of string until 1st upper case - go backwards
+#      #"DarkSlateBlue"
+#     for i in range(len(color_name)-1,-1,-1):
+#         if color_name[i].isupper(): #if letter is uppercase
+#             last_upper_index = i
+#             print color_name[i]
+#             print last_upper_index
+#             break
+
+#     print last_upper_index
+#     print type(last_upper_index)
+
+#     short_color = color_name[last_upper_index:]
+#     print short_color
+#     #print short_color
+
 def ClarifaiColor(image_URL):
-    """function to get 2nd maximum color from Clarifai color model"""
+    """function to get 2nd maximum color name from Clarifai color model, as a string"""
     color_response = color_model.predict_by_url(url=image_URL)
     color_concepts = color_response['outputs'][0]['data']['colors']
-    max_color_val = color_concepts[0]['value']
-    for color_dict in color_concepts: # for each color dictionary
-        if color_dict['value'] > max_color_val:
-            color_dict['value'] = max_color_val
+
+    concept_sort = sorted(color_concepts, key=lambda k: k['value'])
+
+    color_name = concept_sort[-2]['w3c']['name'] # take 2nd largest color value; index in to get the name
+
+    for i in range(len(color_name)-1,-1,-1):
+        if color_name[i].isupper(): #if letter is uppercase
+            last_upper_index = i
+            print color_name[i]
+            print last_upper_index
+            break
+
+    short_color = color_name[last_upper_index:]
+
+    print short_color # returns a string of the short name of the color
+
+    
+    # print last_upper_index
+    # print color_name[last_upper_index] #should be B
+
+    #color_short = [i:]
+    #print color_short #should be Blue
+
+    #print color_name
+    #print new_concepts[:-1]['name']
+
+
              
-    for color_dict_2 in color_concepts:
-        if color_dict_2['value'] == max_color_val:
-            color_concepts.remove(color_dict_2) # remove max val dict from list
-            print color_concepts #debugging
+    # for color_dict_2 in color_concepts:
+    #     if color_dict_2['value'] == max_color_val:
+    #         color_concepts.remove(color_dict_2) # remove max val dict from list
+    #         print color_concepts #debugging
 
-    max_2 = color_concepts[0]['value']
-    color_name = color_concepts[0]['name']
-    for c in color_concepts:
-        if c['value'] > max_2:
-            c['value'] = max_2
-            c['name'] = color_name
+    # max_2 = color_concepts[0]['value']
+    # color_name = color_concepts[0]['name']
+    # for c in color_concepts:
+    #     if c['value'] > max_2:
+    #         c['value'] = max_2
+    #         c['name'] = color_name
 
-    print "THIS IS MAX 2!!!!!"
-    print max_2
-    print color_name
+    # print "THIS IS MAX 2!!!!!"
+    # print max_2
+    # print color_name
 
-    for d in color_concepts:
-        if d['value'] == max_2:
-            print d
-            print "CHECK BELOWWWWWWWWW"
-            print d['raw_hex'][1:]
-            # print str(d['raw_hex']) + ' ' + str(d['value'])
-            # return d['raw_hex']
+    # for d in color_concepts:
+    #     if d['value'] == max_2:
+    #         print d
+    #         print "CHECK BELOWWWWWWWWW"
+    #         print d['raw_hex'][1:]
+    #         # print str(d['raw_hex']) + ' ' + str(d['value'])
+    #         # return d['raw_hex']
 
-ClarifaiColor('https://cdn.tobi.com/product_images/lg/1/green-take-it-slow-skater-dress.jpg')
+ClarifaiColor('http://picture-cdn.wheretoget.it/83fcxo-i.jpg')
             # print max_color_val
 # print "Color: " + str(max_color_hex)
 # print "Color value: " + str(max_color_val)

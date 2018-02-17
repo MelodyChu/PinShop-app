@@ -64,11 +64,12 @@ def ClarifaiResults(image_URL, pin_description=""): #pin descr is string
         if word not in new_concept_list:
             new_concept_list.append(word)
     
-    if "' '" in new_concept_list: # remove spaces
-        new_concept_list.remove("' '")
+    # remove spaces
+    # new_concept_list.remove("and")
+    # new_concept_list.remove(" ")
 
-    if len(new_concept_list) > 6: #make sure total search list not greater than 6 keywords
-        new_concept_list = new_concept_list[:6]
+    if len(new_concept_list) > 5: #make sure total search list not greater than 6 keywords
+        new_concept_list = new_concept_list[:5]
 
     return new_concept_list
 
@@ -99,11 +100,15 @@ def EtsyResults(c_concepts, c_color): # takes list from Clarifai results as an a
 def ShopStyleResults(c_concepts, c_color): # make sure to include size too
     """Construct ShopStyle API request using concepts extrated from Clarifai & pinterest"""
 
-    api_request_str = "http://api.shopstyle.com/api/v2/products?pid=uid2384-40566372-99&offset=0&limit=3&fts=" #+ c_color + "+"
+    api_request_str = "http://api.shopstyle.com/api/v2/products?pid=uid2384-40566372-99&offset=0&limit=3&fts=" + c_color + "+"
     for concept in c_concepts:
         #concept = concept.replace(' ', '+') # convert spaces into %20 for API request
         concept = concept.replace("'s", '') # remove 's from strings
+        #concept.del(' ')
         api_request_str += concept + '+' #append all keywords to end of URL
+
+    # if '++' in api_request_str:
+    #     api_request_string.replace('++','+')
     
     api_request_str = api_request_str[:-1] # strip plus from end of API request str
     print api_request_str # debugging
@@ -125,29 +130,23 @@ def ShopStyleResults(c_concepts, c_color): # make sure to include size too
 
 # Color query: https://openapi.etsy.com/v2/listings/active?includes=MainImage(url_170x135)&fields=listing_id,title,url,mainimage&keywords=Women%20Scarf&color=0000FF&color_accuracy=30&api_key=w31e04vuvggcsv6iods79ol7
 
-def ClarifaiColor(image_URL): # can optimize next week; need less for loops
-    """function to return 2nd maximum color from Clarifai color model, controlling for background color"""
+def ClarifaiColor(image_URL):
+    """function to get 2nd maximum color name from Clarifai color model, as a string"""
     color_response = color_model.predict_by_url(url=image_URL)
     color_concepts = color_response['outputs'][0]['data']['colors']
-    max_color_val = color_concepts[0]['value']
-    for color_dict in color_concepts: # for each color dictionary
-        if color_dict['value'] > max_color_val:
-            color_dict['value'] = max_color_val
-             
-    for color_dict_2 in color_concepts:
-        if color_dict_2['value'] == max_color_val:
-            color_concepts.remove(color_dict_2) # remove max val dict from list
-            print color_concepts #debugging
 
-    max_2 = color_concepts[0]['value']
-    for c in color_concepts:
-        if c['value'] > max_2:
-            c['value'] = max_2
+    concept_sort = sorted(color_concepts, key=lambda k: k['value'])
 
-    for d in color_concepts:
-        if d['value'] == max_2:
-            print d['raw_hex'][1:]
-            return d['raw_hex'][1:] #returns a string of 2nd highest hex value
+    color_name = concept_sort[-2]['w3c']['name'] # take 2nd largest color value; index in to get the name
+
+    for i in range(len(color_name)-1,-1,-1):
+        if color_name[i].isupper(): #if letter is uppercase
+            last_upper_index = i
+            break
+
+    short_color = color_name[last_upper_index:]
+
+    return short_color # returns a string of the short name of the color
 
 def get_melody_pins():
     """Make request to Pinterest to get my pins specifically; process to get to fields I need. Returns list of dictionaries"""
@@ -343,7 +342,7 @@ def user_search():
             print ("Clarifai API failed to return concept results")
             flash("Clarifai API failed to return concept results")
         try: 
-            clarifai_color = ClarifaiColor(imageURL) # pass in imageURL to clarifai color model
+            clarifai_color = ClarifaiColor(imageURL) # pass in imageURL to clarifai color model; get string of color name back
         except:
             print ("Clarifai API failed to return color result")
             flash("Clarifai API failed to return color result")
