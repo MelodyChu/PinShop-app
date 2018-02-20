@@ -43,26 +43,40 @@ app.jinja_env.undefined = StrictUndefined
 def ClarifaiResults(image_URL, pin_description=""): #pin descr is string
     """Get list of concepts from Clarifai *combined with Pinterest description; returns LIST of concepts"""
     if len(pin_description) > 0:
-        c_concepts = pin_description.split(" ") #empty list for concepts returned from Clarifai; put this into helper function
+        c_concepts = pin_description.split() #empty list for concepts returned from Clarifai; put this into helper function
+        print "***CLARIFAI RESULTS FIRST PRINT C_CONCEPTS***"
+        print c_concepts
+        #c_concepts = pin_description.split("-")
+        #c_concepts = c_concepts.strip()
+        #import pdb; pdb.set_trace()
+        # c_concepts = pin_description.strip()
         c_concepts = c_concepts[:4] # no more than 4 keywords from pinterest
+
     else:
         c_concepts = []
 
     c_response = c_model.predict_by_url(url=image_URL)
     concepts = c_response['outputs'][0]['data']['concepts']
-        
-    for concept in concepts: # for each mini dictionary in concepts
-        if concept['value'] > 0.5:
-            a = concept['name'].split()
-            c_concepts += a # now we have list of concepts
 
-    new_concept_list = [] #remove duplicates
+    concept_sort = sorted(concepts, key=lambda k: k['value'])
+    top_concept = concept_sort[-1]['name'].split() #find max top concept to put into search query
+    print "***TOP CONCEPT FROM CLARIFAI MODEL***"
+    print top_concept
+    c_concepts += top_concept
+    print "***CLARIFAI RESULTS 2nd PRINT C_CONCEPTS WITH TOP PREDICT CONCEPTS"
+    print c_concepts #debug
+        
+    new_concept_list = [] #remove duplicates & clean the concepts list
     for word in c_concepts:
         word = word.replace("'s", '')
-        word = word.strip('-=&#~+/,0123456789.')
+        word = word.strip('|-=&#~+/,0123456789.')
+        # word = word.split(" ")
         word = word.lower()
-        if word not in new_concept_list:
+        if word not in new_concept_list: # remove unneccessary spaces after the strip
             new_concept_list.append(word)
+
+        # if type(word) == list:
+        #     new_concept_list.extend(word)
     
     # remove spaces
     # new_concept_list.remove("and")
@@ -71,47 +85,44 @@ def ClarifaiResults(image_URL, pin_description=""): #pin descr is string
     if len(new_concept_list) > 5: #make sure total search list not greater than 6 keywords
         new_concept_list = new_concept_list[:5]
 
+    print "***CLARIFAI RESULTS 3rd PRINT C_CONCEPTS WITH CLEANED CONCEPTS"
+    print new_concept_list #debugging
     return new_concept_list
 
-# GET MAIN IMAGE FROM ETSY: https://openapi.etsy.com/v2/listings/active?includes=MainImage(url_170x135)&fields=listing_id,title,url,mainimage&keywords=Women%20Scarf&api_key=w31e04vuvggcsv6iods79ol7
-# ADD PRICE TO API CALL
-def EtsyResults(c_concepts, c_color): # takes list from Clarifai results as an argument, and color
-    """Construct Etsy API request using concepts extrated from Clarifai"""
-    api_request_str = 'https://openapi.etsy.com/v2/listings/active?includes=MainImage(url_170x135)&fields=listing_id,title,url,price,mainimage&color_accuracy=30&color=' + c_color + '&keywords='
-    for concept in c_concepts: #iterating through list of concepts from Clarifai
-        concept = concept.replace(' ', '%20') # convert spaces into %20 for API request
-        #concept = concept.replace("'s", '') # remove 's from strings
-        api_request_str += concept + ',' #append all keywords to end of URL
+def check_clothing_type(clarifai_concepts):
+    """Identify concepts in clarifai concepts to grab user size for appropriate clothing piece"""
+    pant_concepts = set(['jeans','pant','shorts','slacks','capris','trousers'])
+    shoe_concepts = set(['shoe', 'boot', 'bootie', 'sneaker', 'slipper', 'heel', 'sandals','moccasin','toe','loafers','flats','oxford','platform'])
+
+    for concept in clarifai_concepts:
+        if concept in pant_concepts or (concept + 's') in pant_concepts:
+            print 'pant'
+            return 'pant'
+        elif concept in shoe_concepts or (concept + 's') in shoe_concepts:
+            print 'shoe'
+            return 'shoe'
     
-    api_request_str = api_request_str[:-1] # strip comma from end of API request str
-    print api_request_str # debugging
-    etsy_request = etsy_api.get(api_request_str)
-    etsy_data = etsy_request.json()
+    print 'top'
+    return 'top'
 
-    try:
-        etsy_data_list = etsy_data['results']
-    except:
-        print ("I got here OOOOOPSSSSSSSS")
-    print etsy_data_list
-
-
-    return etsy_data_list # returns a list of dictionaries associated with etsy results key
-
-def ShopStyleResults(c_concepts, c_color): # make sure to include size too
+def ShopStyleResults(c_concepts, c_color, size): # make sure to include size too
     """Construct ShopStyle API request using concepts extrated from Clarifai & pinterest"""
 
-    api_request_str = "http://api.shopstyle.com/api/v2/products?pid=uid2384-40566372-99&offset=0&limit=3&fts=" + c_color + "+"
-    for concept in c_concepts:
-        #concept = concept.replace(' ', '+') # convert spaces into %20 for API request
-        concept = concept.replace("'s", '') # remove 's from strings
-        #concept.del(' ')
+    concept_set = set(c_concepts) # change into set, remove duplicates even if coming from color
+    concept_set.add(c_color)
+    #import pdb; pdb.set_trace()
+    print "***SHOPSTYLE CONCEPT_SET FIRST PRINT ***"
+
+    api_request_str = "http://api.shopstyle.com/api/v2/products?pid=uid2384-40566372-99&offset=0&limit=3&fts="
+
+    for concept in concept_set:
         api_request_str += concept + '+' #append all keywords to end of URL
 
-    # if '++' in api_request_str:
-    #     api_request_string.replace('++','+')
-    
-    api_request_str = api_request_str[:-1] # strip plus from end of API request str
+    api_request_str += size #append size to end of the list
+
+    #api_request_str = api_request_str[:-1] # strip plus from end of API request str
     print api_request_str # debugging
+
     shop_request = requests.get(api_request_str)
     shop_data = shop_request.json()
 
@@ -144,7 +155,8 @@ def ClarifaiColor(image_URL):
             last_upper_index = i
             break
 
-    short_color = color_name[last_upper_index:]
+    short_color = color_name[last_upper_index:].lower()
+    print short_color
 
     return short_color # returns a string of the short name of the color
 
@@ -306,31 +318,42 @@ def logout():
 @app.route('/search', methods=['GET', 'POST']) # how to customize search URL per user?
 def user_search():
     if request.method == 'GET': 
-        if not session.get("pin_username"): #if user has not provided a pinterest username
-            melody_pins = get_melody_pins() # this is a list of dicts; will customize once i implement user pin pulls
-            print "******LOOK HERE FOR PINS!!!!!!!!!!*********************************"
-            # print melody_pins
-            # print session 
-            # import pdb; pdb.set_trace()
-            return render_template("search.html", melody_pins=melody_pins) # pass melody_pins to jinja
-        else: # if user has pin username
-            
-            try:
-                board = request.args.get("board-name") #use request.args to get board name from input HTML
-                user_pins = get_user_pins_given_board(session["pin_username"], board)
-                print "***********ROUTE 1 *******************"
-            except:
-                user_pins = get_user_pins_no_board(session["pin_username"]) #pulls all pins for that user
-                print "***********ROUTE 2 *******************"
-            return render_template("search.html", melody_pins=user_pins) # check melody pins which one this == 
-            
+        # regardless of whether orn ot there is user in session, give option to select size
+        if session.get("user_id"): # if there is a user in the session
+            user_id = session.get("user_id")
+            user = User.query.filter_by(user_id=user_id).first() #create user object
+            # user_size = user.size - can get these in Jinja
+            # pant_size = user.pant_size
+            # shoe_size = user.shoe_size
+
+            if not session.get("pin_username"): #if user has not provided a pinterest username
+                melody_pins = get_melody_pins() # this is a list of dicts; will customize once i implement user pin pulls
+                
+                return render_template("search.html", melody_pins=melody_pins, user=user) # pass melody_pins to jinja
+            if session.get("pin_username"): # if user has pin username
+                try:
+                    board = request.args.get("board-name") #use request.args to get board name from input HTML
+                    user_pins = get_user_pins_given_board(session["pin_username"], board)
+                    
+                except:
+                    user_pins = get_user_pins_no_board(session["pin_username"]) #pulls all pins for that user
+                    
+                return render_template("search.html", melody_pins=user_pins, user=user) # check melody pins which one this == 
+
+        else: #if no user ID in session
+            melody_pins = get_melody_pins()
+            return render_template("search.html", melody_pins=melody_pins)
+
+                
 
     if request.method == 'POST':
         # try:
         imageURL = request.form.get('image_URL') # get image URL from the form
         pin_description = request.form.get("image_desc") 
         print "***********PIN DESCRIPTION********************"
+        json.dumps(pin_description)
         print pin_description
+        print type(pin_description) #SHOULD BE STRING!
         # except:
         #     imageURL = request.args.get('image') # get image URL from selected pin image radio button
         #     print "***********IMAGE URL 2********************"
@@ -347,8 +370,21 @@ def user_search():
             print ("Clarifai API failed to return color result")
             flash("Clarifai API failed to return color result")
         if clarifai_concepts is not None and clarifai_color is not None: # if there is a concept list returned; pass those to the function
+            # write a function that checks contents of clarifai concepts to see whether or not item is pant or shoe or something else
+            user_size = request.form.get("size") # grab elemnts from the search html form
+            user_pant_size = request.form.get("pant_size")
+            user_shoe_size = request.form.get("shoe_size")
+            clothing_type = check_clothing_type(clarifai_concepts) # pass in clarifai concepts to check the type
+
+            if clothing_type == "pant":
+                size = user_pant_size
+            elif clothing_type == "shoe":
+                size = user_shoe_size
+            else:
+                size = user_size
+
             try: 
-                shop_data = ShopStyleResults(clarifai_concepts, clarifai_color) ### is this redundant? 
+                shop_data = ShopStyleResults(clarifai_concepts, clarifai_color, size) ### is this redundant? 
                 print type(shop_data) #etsy_data is a list
                 return redirect(url_for('show_results', results=json.dumps(shop_data)))
 

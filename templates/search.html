@@ -13,15 +13,59 @@
       <input type="hidden" name="image_desc" id="image_desc"></input>
     </div>
 
+    <div>
+        <label>
+          Top Size*
+          {% if session.get("user_id") %}
+            <select name="size">
+              <option value="X-Small" {% if user.size == "X-Small" %} selected="selected" {% endif %}>X-Small</option>
+              <option value="Small" {% if user.size == "Small" %} selected="selected" {% endif %}>Small</option>
+              <option value="Medium" {% if user.size == "Medium" %} selected="selected" {% endif %}>Medium</option>
+              <option value="Large" {% if user.size == "Large" %} selected="selected" {% endif %}>Large</option>
+              <option value="X-Large" {% if user.size == "X-Large" %} selected="selected" {% endif %}>X-Large</option>
+          </select>
+          {% else %}
+          <select name="size">
+              <option value="X-Small">X-Small</option>
+              <option value="Small">Small</option>
+              <option value="Medium">Medium</option>
+              <option value="Large">Large</option>
+              <option value="X-Large">X-Large</option>
+          {% endif %}
+        </label>
+      </div>
+
+      <div>
+        <label>
+          <p>Pant Size (US, inches)*</p>
+          {% if "user_id" in session %}
+            <input type="number" name="pant_size" min="23" max="40" value="{{ user.pant_size }}" class="form-control">
+          {% else %}
+            <input type="number" name="pant_size" min="23" max="40" class="form-control">
+          {% endif %}
+        </label>
+      </div>
+
+      <div>
+        <label>
+          Shoe Size (US)*
+          {% if "user_id" in session %}
+            <input type="number" name="shoe_size" min="4" max="13" step=".5" value="{{ user.shoe_size }}" class="form-control">
+          {% else %}
+            <input type="number" name="shoe_size" min="4" max="13" step=".5" class="form-control">
+          {% endif %}
+        </label>
+      </div>
+
     <div class="form-group">
-      <p><input type="submit" value="Search on Etsy" id="Etsy-search" class="btn btn-primary"></p>
+      <p><input type="submit" value="Search" id="Shop-search" class="btn btn-primary"></p>
     </div>
 
   </form>
 
   {# SEARCH FOR BOARD PORTION IF USER PROVIDES PINTEREST NAME #}
   <form action="/search" method="GET"> {# make sure this is correctly a get request; need to send board name #}
-  {% if "pin_username" in session %}
+  {% if session.get("pin_username") %} {# if "pin_username" in session #}
     <p><h4>Search your pins</h4></p>
     <p><h4>Filter by specific board</h4></p> <!-- Allow user to input specific board name -->
     <div class="form-group">

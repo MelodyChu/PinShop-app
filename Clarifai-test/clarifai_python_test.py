@@ -49,25 +49,25 @@ color_model = c_app.models.get('color')
 #     print short_color
 #     #print short_color
 
-def ClarifaiColor(image_URL):
-    """function to get 2nd maximum color name from Clarifai color model, as a string"""
-    color_response = color_model.predict_by_url(url=image_URL)
-    color_concepts = color_response['outputs'][0]['data']['colors']
+# def ClarifaiColor(image_URL):
+#     """function to get 2nd maximum color name from Clarifai color model, as a string"""
+#     color_response = color_model.predict_by_url(url=image_URL)
+#     color_concepts = color_response['outputs'][0]['data']['colors']
 
-    concept_sort = sorted(color_concepts, key=lambda k: k['value'])
+#     concept_sort = sorted(color_concepts, key=lambda k: k['value'])
 
-    color_name = concept_sort[-2]['w3c']['name'] # take 2nd largest color value; index in to get the name
+#     color_name = concept_sort[-2]['w3c']['name'] # take 2nd largest color value; index in to get the name
 
-    for i in range(len(color_name)-1,-1,-1):
-        if color_name[i].isupper(): #if letter is uppercase
-            last_upper_index = i
-            print color_name[i]
-            print last_upper_index
-            break
+#     for i in range(len(color_name)-1,-1,-1):
+#         if color_name[i].isupper(): #if letter is uppercase
+#             last_upper_index = i
+#             print color_name[i]
+#             print last_upper_index
+#             break
 
-    short_color = color_name[last_upper_index:]
+#     short_color = color_name[last_upper_index:]
 
-    print short_color # returns a string of the short name of the color
+#     print short_color # returns a string of the short name of the color
 
     
     # print last_upper_index
@@ -105,7 +105,7 @@ def ClarifaiColor(image_URL):
     #         # print str(d['raw_hex']) + ' ' + str(d['value'])
     #         # return d['raw_hex']
 
-ClarifaiColor('http://picture-cdn.wheretoget.it/83fcxo-i.jpg')
+#ClarifaiColor('http://picture-cdn.wheretoget.it/83fcxo-i.jpg')
             # print max_color_val
 # print "Color: " + str(max_color_hex)
 # print "Color value: " + str(max_color_val)
@@ -156,8 +156,23 @@ ClarifaiColor('http://picture-cdn.wheretoget.it/83fcxo-i.jpg')
  u'Knee Length Skirt', u'Kimono', u"Women's Shorts", u'Tube Top', u'Cardigan', 
  u'Maxi Skirt', u'Cocktail Dress', u'Dress', u'Halter Top', u"Women's Scarf", u'Jumpsuit']"""
 
+def check_clothing_type(clarifai_concepts):
+    """Identify concepts in clarifai concepts to grab user size for appropriate clothing piece"""
+    pant_concepts = set(['jeans','pant','shorts','slacks','capris','trousers'])
+    shoe_concepts = set(['shoe', 'boot', 'bootie', 'sneaker', 'slippers', 'heels', 'sandal','moccasins','toe','loafers','flat','oxford','platform'])
 
+    for concept in clarifai_concepts:
+        if concept in pant_concepts or (concept + 's') in pant_concepts:
+            print 'pant'
+            return 'pant'
+        elif concept in shoe_concepts or (concept + 's') in shoe_concepts:
+            print 'shoe'
+            return 'shoe'
+    
+    print 'top'
+    return 'top'
 
+check_clothing_type(['women','sandals'])
 
 
 
