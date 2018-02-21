@@ -84,16 +84,24 @@
   {% endif %}
 
   {# SEARCH FOR SPECIFIC PIN AND SUBMIT #}
-<div id="pin-list">
+<script src="/path/to/masonry.pkgd.min.js"></script> <!-- Masonry jquery .js file -->
+<div class="grid" id="pin-list">
   {% for pin in melody_pins %} {# melody_pins can either be sample pins or melody's pins depending on session #}
-    <div>
-      <a href="{{ pin['link'] }}" ><img src="{{ pin['image'] }}">{{ pin['description'] }}</a>
+    <div class="grid-item">
+      <a href="{{ pin['link'] }}" ><img src="{{ pin['image'] }}"></a> {# {{ pin['description'] }} #}
       <input type="radio" name="pin-select" class="radiobutton" data-pinimage="{{ pin['image'] }}" data-pindesc="{{ pin['description'] }}">
     </div>
   {% endfor %}
 </div>
 
 <script type="text/javascript">
+
+$('.grid').masonry({
+  itemSelector: '.grid-item',
+  columnWidth: 100,
+  horizontalOrder: true,
+  gutter: 20
+});
 
 $('.radiobutton').click(
   function (evt) {

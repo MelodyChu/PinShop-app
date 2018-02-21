@@ -27,8 +27,35 @@ import requests
 #     total_list.append(shop_dict)
 
 # print total_list
+def ShopStyle_Retry(c_concepts, c_color, size):
+    """Implement retry logic in case shopstyle API doesn't return any results"""
+    results = ShopStyleResults(c_concepts, c_color, size) #results will be a list of dictionaries; if populated
+    print results
+    retry_count = 0
+    original_length = len(c_concepts)
+    while len(results) == 0 and retry_count <= (original_length + 2): #len(c_concepts): # if API returns 0 
+        if retry_count == 0:
+            results = ShopStyleResults(c_concepts, c_color)
+            retry_count += 1
+            print retry_count
+        elif retry_count == 1:
+            results = ShopStyleResults(c_concepts)
+            retry_count += 1
+            print retry_count
+        elif retry_count > 1:
+            c_concepts = c_concepts[0:-1] #splice off last word in c_concepts
+            print c_concepts
+            results = ShopStyleResults(c_concepts)
+            retry_count += 1
+            print retry_count
 
-def ShopStyleResults(c_concepts, c_color, size): # make sure to include size too; size is a str
+    print retry_count
+    return results
+
+
+
+
+def ShopStyleResults(c_concepts, c_color='', size=''): # make sure to include size too; size is a str
     """Construct ShopStyle API request using concepts extrated from Clarifai & pinterest"""
 
     concept_set = set(c_concepts) # change into set, remove duplicates even if coming from color
@@ -40,10 +67,7 @@ def ShopStyleResults(c_concepts, c_color, size): # make sure to include size too
         #concept = concept.replace("'s", '') # remove 's from strings
         #concept.del(' ')
     for concept in concept_set:
-        api_request_str += concept + '+' #append all keywords to end of URL
-
-    # if '++' in api_request_str:
-    #     api_request_string.replace('++','+')
+        api_request_str += concept + '+' #append all keywords to end of UR
 
     api_request_str += size
     
@@ -64,7 +88,7 @@ def ShopStyleResults(c_concepts, c_color, size): # make sure to include size too
         shop_dict["url"] = prop["clickUrl"]
         total_list.append(shop_dict)
     
-    print total_list #returns list of dictionaries associated with shopstyle item
+    return total_list #returns list of dictionaries associated with shopstyle item
 
 # def ShopStyleResults(c_concepts, c_color, size): # make sure to include size too
 #     """Construct ShopStyle API request using concepts extrated from Clarifai & pinterest"""
@@ -94,7 +118,11 @@ def ShopStyleResults(c_concepts, c_color, size): # make sure to include size too
     
 #     return total_list
 
-test = ShopStyleResults(['heels','electric'], 'blue','7') # need to process spaces, colons, commas
+test = ShopStyle_Retry(['women','midi','kimono','blush'], 'Gray','X-Small') # need to process spaces, colons, commas
+print "***SHOPSTYLE RETRIES****"
 print test
+
+
+
 # list_dict = test['results'] # gives a list of dictionaries
 

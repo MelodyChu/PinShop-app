@@ -92,7 +92,7 @@ def ClarifaiResults(image_URL, pin_description=""): #pin descr is string
 def check_clothing_type(clarifai_concepts):
     """Identify concepts in clarifai concepts to grab user size for appropriate clothing piece"""
     pant_concepts = set(['jeans','pant','shorts','slacks','capris','trousers'])
-    shoe_concepts = set(['shoe', 'boot', 'bootie', 'sneaker', 'slipper', 'heel', 'sandals','moccasin','toe','loafers','flats','oxford','platform'])
+    shoe_concepts = set(['shoe', 'boot', 'bootie', 'sneaker', 'slipper', 'heel', 'sandals','moccasin','toe','loafers','flats','oxford','platform', 'pumps'])
 
     for concept in clarifai_concepts:
         if concept in pant_concepts or (concept + 's') in pant_concepts:
@@ -105,15 +105,15 @@ def check_clothing_type(clarifai_concepts):
     print 'top'
     return 'top'
 
-def ShopStyleResults(c_concepts, c_color, size): # make sure to include size too
-    """Construct ShopStyle API request using concepts extrated from Clarifai & pinterest"""
+def ShopStyleResults(c_concepts, c_color='', size=''): # make sure to include size too # make c_color & size have default values
+    """Construct ShopStyle API request using concepts extrated from Clarifai & Pinterest"""
 
     concept_set = set(c_concepts) # change into set, remove duplicates even if coming from color
     concept_set.add(c_color)
     #import pdb; pdb.set_trace()
     print "***SHOPSTYLE CONCEPT_SET FIRST PRINT ***"
 
-    api_request_str = "http://api.shopstyle.com/api/v2/products?pid=uid2384-40566372-99&offset=0&limit=3&fts="
+    api_request_str = "http://api.shopstyle.com/api/v2/products?pid=uid2384-40566372-99&offset=0&limit=20&sort=Popular&fts="
 
     for concept in concept_set:
         api_request_str += concept + '+' #append all keywords to end of URL
@@ -140,6 +140,31 @@ def ShopStyleResults(c_concepts, c_color, size): # make sure to include size too
     return total_list #returns list of dictionaries associated with shopstyle item
 
 # Color query: https://openapi.etsy.com/v2/listings/active?includes=MainImage(url_170x135)&fields=listing_id,title,url,mainimage&keywords=Women%20Scarf&color=0000FF&color_accuracy=30&api_key=w31e04vuvggcsv6iods79ol7
+
+def ShopStyle_Retry(c_concepts, c_color, size):
+    """Implement retry logic in case shopstyle API doesn't return any results with initial query"""
+    results = ShopStyleResults(c_concepts, c_color, size) #results will be a list of dictionaries; if populated
+    print results
+    retry_count = 0
+    original_length = len(c_concepts)
+    while len(results) == 0 and retry_count <= (original_length + 2): #len(c_concepts): # if API returns 0 
+        if retry_count == 0:
+            results = ShopStyleResults(c_concepts, c_color)
+            retry_count += 1
+            print retry_count
+        elif retry_count == 1:
+            results = ShopStyleResults(c_concepts)
+            retry_count += 1
+            print retry_count
+        elif retry_count > 1:
+            c_concepts = c_concepts[0:-1] #splice off last word in c_concepts each time
+            print c_concepts
+            results = ShopStyleResults(c_concepts)
+            retry_count += 1
+            print retry_count
+
+    print retry_count
+    return results
 
 def ClarifaiColor(image_URL):
     """function to get 2nd maximum color name from Clarifai color model, as a string"""
@@ -311,6 +336,7 @@ def logout():
     del session["user_id"]
     #import pdb; pdb.set_trace()
     del session["pin_username"] # <SecureCookieSession {'user_id': 10, u'pin_username': u'melodychuchu'}>
+    del session["board"]
     flash("Logged Out.")
     return redirect("/search")
 
@@ -332,8 +358,18 @@ def user_search():
                 return render_template("search.html", melody_pins=melody_pins, user=user) # pass melody_pins to jinja
             if session.get("pin_username"): # if user has pin username
                 try:
-                    board = request.args.get("board-name") #use request.args to get board name from input HTML
-                    user_pins = get_user_pins_given_board(session["pin_username"], board)
+                    board = request.args.get("board-name") 
+                    if not board: # if no board inputted in form
+                        board = session.get('board')
+                        user_pins = get_user_pins_given_board(session["pin_username"], board)
+                    else: # if a board IS indeed inputted in form
+                        session['board'] = board # add board into session dictionary
+                        user_pins = get_user_pins_given_board(session["pin_username"], board)
+
+                    # if session.get('board'): # if board is in session and user is in session
+                    #     board = session.get('board')
+                    #     user_pins = get_user_pins_given_board(session["pin_username"], board)
+    
                     
                 except:
                     user_pins = get_user_pins_no_board(session["pin_username"]) #pulls all pins for that user
@@ -384,13 +420,16 @@ def user_search():
                 size = user_size
 
             try: 
-                shop_data = ShopStyleResults(clarifai_concepts, clarifai_color, size) ### is this redundant? 
+                shop_data = ShopStyle_Retry(clarifai_concepts, clarifai_color, size) # this will call 2nd helper function (ShopStyleResults)
+                #shop_data = ShopStyleResults(clarifai_concepts, clarifai_color, size) ### line of original, non-retry code. 
+                print "*****SHOP DATA RETRY RESULTS HERE ******************"
+                print shop_data
                 print type(shop_data) #etsy_data is a list
                 return redirect(url_for('show_results', results=json.dumps(shop_data)))
 
             except:
                 print ("Shopstyle API failed to return results")
-                flash("Clarifai API failed to return results")
+                flash("ShopStyle API failed to return results")
         else:
             print ("Nothing returned o-noes")
             return redirect('/search')
@@ -399,12 +438,11 @@ def user_search():
         return redirect('/search')
 
 
-@app.route('/results', methods=['GET'])
+@app.route('/results', methods=['GET']) #'make GET & POST conditional'
 def show_results(): 
     """display Etsy search results on the results page"""
 
     results = json.loads(request.args.get('results')) #changes to list of dicts
-    #import pdb; pdb.set_trace()
 
     return render_template("results.html", results=results) #This works for shopstyle! YAY!
 
