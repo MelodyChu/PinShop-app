@@ -44,8 +44,8 @@ def ClarifaiResults(image_URL, pin_description=""): #pin descr is string
     """Get list of concepts from Clarifai *combined with Pinterest description; returns LIST of concepts"""
     if len(pin_description) > 0:
         c_concepts = pin_description.split() #empty list for concepts returned from Clarifai; put this into helper function
-        print "***CLARIFAI RESULTS FIRST PRINT C_CONCEPTS***"
-        print c_concepts
+        #print "***CLARIFAI RESULTS FIRST PRINT C_CONCEPTS***"
+        #print c_concepts
         #c_concepts = pin_description.split("-")
         #c_concepts = c_concepts.strip()
         #import pdb; pdb.set_trace()
@@ -60,11 +60,11 @@ def ClarifaiResults(image_URL, pin_description=""): #pin descr is string
 
     concept_sort = sorted(concepts, key=lambda k: k['value'])
     top_concept = concept_sort[-1]['name'].split() #find max top concept to put into search query
-    print "***TOP CONCEPT FROM CLARIFAI MODEL***"
-    print top_concept
+    #print "***TOP CONCEPT FROM CLARIFAI MODEL***"
+    #print top_concept
     c_concepts += top_concept
-    print "***CLARIFAI RESULTS 2nd PRINT C_CONCEPTS WITH TOP PREDICT CONCEPTS"
-    print c_concepts #debug
+    #print "***CLARIFAI RESULTS 2nd PRINT C_CONCEPTS WITH TOP PREDICT CONCEPTS"
+    #print c_concepts #debug
         
     new_concept_list = [] #remove duplicates & clean the concepts list
     for word in c_concepts:
@@ -85,8 +85,8 @@ def ClarifaiResults(image_URL, pin_description=""): #pin descr is string
     if len(new_concept_list) > 5: #make sure total search list not greater than 6 keywords
         new_concept_list = new_concept_list[:5]
 
-    print "***CLARIFAI RESULTS 3rd PRINT C_CONCEPTS WITH CLEANED CONCEPTS"
-    print new_concept_list #debugging
+    #print "***CLARIFAI RESULTS 3rd PRINT C_CONCEPTS WITH CLEANED CONCEPTS"
+    #print new_concept_list #debugging
     return new_concept_list
 
 def check_clothing_type(clarifai_concepts):
@@ -144,7 +144,7 @@ def ShopStyleResults(c_concepts, c_color='', size=''): # make sure to include si
 def ShopStyle_Retry(c_concepts, c_color, size):
     """Implement retry logic in case shopstyle API doesn't return any results with initial query"""
     results = ShopStyleResults(c_concepts, c_color, size) #results will be a list of dictionaries; if populated
-    print results
+    #print results
     retry_count = 0
     original_length = len(c_concepts)
     while len(results) == 0 and retry_count <= (original_length + 2): #len(c_concepts): # if API returns 0 
@@ -163,7 +163,7 @@ def ShopStyle_Retry(c_concepts, c_color, size):
             retry_count += 1
             print retry_count
 
-    print retry_count
+    #print retry_count
     return results
 
 def ClarifaiColor(image_URL):
@@ -181,7 +181,7 @@ def ClarifaiColor(image_URL):
             break
 
     short_color = color_name[last_upper_index:].lower()
-    print short_color
+    #print short_color
 
     return short_color # returns a string of the short name of the color
 
@@ -285,8 +285,8 @@ def register_user():
 
     session["user_id"] = User.query.filter_by(email=new_user.email).first().user_id #CHECK THIS; make sure user gets into session once they register
     session["pin_username"] = User.query.filter_by(email=new_user.email).first().pinterest_token 
-    print "SEE SESSION HERE!!!!!  **********************"
-    print session # to debug
+    #print "SEE SESSION HERE!!!!!  **********************"
+    #print session # to debug
     # <SecureCookieSession {u'pin_username': u'melodychuchu', u'user_id': 10}>
 
     flash("User {} added.".format(email))
@@ -315,14 +315,16 @@ def login_process():
     if not user:
         flash("Oops! Please log in!")
         return redirect("/login")
-
+    print password
+    print user.password
+    #password.encode("utf-8")
     if bcrypt.check_password_hash(user.password, password) == False:
         flash("Incorrect password")
         return redirect("/login")
 
     session["user_id"] = user.user_id # session ID will be BIG; includes Etsy payload below
     session["pin_username"] = user.pinterest_token
-    print session #debugging
+    #print session #debugging
     # need to put this in registration as well
 
     flash("Logged in")
@@ -332,11 +334,15 @@ def login_process():
 @app.route('/logout')
 def logout():
     """Log out user."""
-    print session["pin_username"]
+    #print session["pin_username"]
     del session["user_id"]
     #import pdb; pdb.set_trace()
+    
     del session["pin_username"] # <SecureCookieSession {'user_id': 10, u'pin_username': u'melodychuchu'}>
-    del session["board"]
+    
+    if session.get("board"):
+        del session["board"]
+
     flash("Logged Out.")
     return redirect("/search")
 
@@ -386,10 +392,10 @@ def user_search():
         # try:
         imageURL = request.form.get('image_URL') # get image URL from the form
         pin_description = request.form.get("image_desc") 
-        print "***********PIN DESCRIPTION********************"
+        #print "***********PIN DESCRIPTION********************"
         json.dumps(pin_description)
-        print pin_description
-        print type(pin_description) #SHOULD BE STRING!
+        #print pin_description
+        #print type(pin_description) #SHOULD BE STRING!
         # except:
         #     imageURL = request.args.get('image') # get image URL from selected pin image radio button
         #     print "***********IMAGE URL 2********************"
@@ -423,7 +429,7 @@ def user_search():
                 shop_data = ShopStyle_Retry(clarifai_concepts, clarifai_color, size) # this will call 2nd helper function (ShopStyleResults)
                 #shop_data = ShopStyleResults(clarifai_concepts, clarifai_color, size) ### line of original, non-retry code. 
                 print "*****SHOP DATA RETRY RESULTS HERE ******************"
-                print shop_data
+                #print shop_data
                 print type(shop_data) #etsy_data is a list
                 return redirect(url_for('show_results', results=json.dumps(shop_data)))
 
@@ -443,6 +449,10 @@ def show_results():
     """display Etsy search results on the results page"""
 
     results = json.loads(request.args.get('results')) #changes to list of dicts
+    # print "REQUEST.ARGS.GET RESULTS !!!"
+    # print request.args.get('results')
+    # print "FIND RESULTS HERE ******************"
+    # print results
 
     return render_template("results.html", results=results) #This works for shopstyle! YAY!
 
@@ -450,13 +460,13 @@ def show_results():
 def get_info():
     """Uses Etsy listing ID of saved item to make API call to get the rest of Etsy's info"""
     listing_info = request.args.get('listing_data') #get listing data from ID
-    print listing_info
+    #print listing_info
     request_str = 'http://api.shopstyle.com/api/v2/products/' + str(listing_info) + '?pid=uid2384-40566372-99'
-    print request_str
+    #print request_str
     shop_api_data = requests.get(request_str) #not sure if redundant
     shop_api_data = shop_api_data.json()
     print "SHOP API DATA HEREEEE!!!!!! FROM GET ITEM INFO"
-    print shop_api_data #CHECK & debug
+    #print shop_api_data #CHECK & debug
     # print type(etsy_api_data)
     # print type(etsy_api_data['results'][0]) #debugging
     # print (etsy_api_data['results'][0])
@@ -468,16 +478,16 @@ def save_result():
     """handle users saving Etsy results, with JSON data from get-item-info route""" 
     # print request
     listing_data = request.get_json() #should get JSON blob back for shopstyle API item info
-    print "CHECK OUT LISTING DATA TYPE HERE _______________!!!!!!!!!!!!!!!! SHOULD BE JSON OBJECT"
+    #print "CHECK OUT LISTING DATA TYPE HERE _______________!!!!!!!!!!!!!!!! SHOULD BE JSON OBJECT"
     print type(listing_data) #should be string; it is type UNICODE
-    print listing_data
+    #print listing_data
     
     shop_id = listing_data['id']
 
     #Check if listing already in DB?
     listing = EtsyResult.query.filter(EtsyResult.etsy_listing_id == shop_id).first()
-    print "SEE LISTING HERE***********************"
-    print listing
+    #print "SEE LISTING HERE***********************"
+    #print listing
 
     #if listing it's not there in EtsyResult, create it!
     if not listing:
@@ -504,7 +514,7 @@ def view_bookmarks():
     """display the Etsy search rsults that the user has saved"""
     user_id = session.get('user_id') #grab user ID from session
     user_bookmarks = Bookmark.query.filter_by(user_id=user_id).all() #get all bookmarks for 1 user
-    print user_bookmarks
+    #print user_bookmarks
     
     listing_list = [] #dictionary of listings, with listing_ID as key and other attributes like price as values
     for item in user_bookmarks:

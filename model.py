@@ -84,14 +84,29 @@ class EtsyResult(db.Model): #rename to bookmarks intermediary table / associatio
 
         return "<Etsy etsy_listing_id={} listing_title={}".format(self.etsy_listing_id, self.listing_title)
 
+
+def example_data():
+    """Create some sample data."""
+
+    # In case this is run more than once, empty out existing data
+    #User.query.delete()
+
+    ann = User(email='ann@test.com', password='123', gender='Female', age=25, size='Small', pant_size=26, shoe_size=6) 
+    bo = User(email='bo@test.com', password='456', gender='Female', age=20, size='Medium', pant_size=28, shoe_size=7, pinterest_token='booboo') 
+
+
+    db.session.add_all([ann,bo])
+    db.session.commit()
+
 #####################################################################
 # Helper functions
 
-def connect_to_db(app):
+def connect_to_db(app, db_uri='postgresql:///pintest'):
     """Connect the database to our Flask app."""
 
     # Configure to use our PostgreSQL database
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///pintest'
+    #app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///pintest'
+    app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.app = app
     db.init_app(app)
