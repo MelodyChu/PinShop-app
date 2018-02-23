@@ -257,6 +257,12 @@ def set_val_user_id(): #does this go here? this works
 
 #ROUTES GO HERE ###########################
 
+@app.route('/', methods=['GET']) 
+def get_homepage():
+    """Show homepage for non-logged in users"""
+
+    return render_template("homepage.html")
+
 @app.route('/register', methods=['GET']) 
 def register_form():
     """Show form for user signup."""
@@ -315,7 +321,9 @@ def login_process():
     if not user:
         flash("Oops! Please log in!")
         return redirect("/login")
+    
     print password
+
     print user.password
     #password.encode("utf-8")
     if bcrypt.check_password_hash(user.password, password) == False:
