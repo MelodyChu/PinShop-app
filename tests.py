@@ -170,7 +170,7 @@ class FlaskTestsLoggedIn_withPin(TestCase):
         example_data()
 
     def test_user_search_2(self): #ERROR WITH CREATIN TEST DB; "relation "users" does not exist"
-        """Test user search for logged in user (no pinterest username provided)"""
+        """Test user search for logged in user with pinterest username"""
 
         result = self.client.get("/search")
         self.assertIn("Bookmarks", result.data) # may need to find higher fidelity keyword; can we check "Logged In flash message?"
