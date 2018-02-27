@@ -2,23 +2,105 @@
 {% block content %}
 
     <h1>PinShop Results</h1>
+  <div>
+  <h3>Sort by:</h3>
+  <input type="radio" name="result-sort" class="sortradiobutton" id="popularity" value="popularity" checked>
+  <label for="popularity">Popularity
 
+  <input type="radio" name="result-sort" class="sortradiobutton" id="lowtohigh" value="lowtohigh">
+  <label for="lowtohigh">Price: Low to High
 
-  {% for result in results %}
-    <div>
-      <a href="{{ result['url'] }}"><img src="{{ result['image_url'] }}" style="width:100px;height:200px;">{{ result['name'] }}</a>
-      <p>{{ result['price'] }}</p>
-      {% if "user_id" in session %}
-          {# <button class="save-button" data-listingdata="{{ json.dumps(result) }}" >Save</button> #}
-          {# <button class="save-button" data-listingdata="{{ result|tojson|safe }}" >Save</button> #}
-          <button class="save-button" data-listingdata="{{ result['id'] }}" >Save</button>
-      {% endif %}
+  <input type="radio" name="result-sort" class="sortradiobutton" id="hightolow" value="hightolow">
+  <label for="hightolow">Price: High to Low
+  
+
+  <input type="radio" name="result-sort" class="sortradiobutton" id="sortbrand" value="sortbrand">
+  <label for="sortbrand">Specific Brand
+   <select name="brand-dropdown">
+    {% for brand in brand_set %}
+      <option class="brand-select" value="{{ brand }}">{{ brand }}</li>
+    {% endfor %}
+  </select>
+  </div>
+
+    <div class="product-list">
+    {% for i, result in enumerate(results) %}
+      <div class="list-item" id="{{ result['id'] }}" data-price="{{ result['price'] }}" data-popularity="{{ i }}" data-brand="{{ result['brand'] }}" >
+        <a class="product-info" href="{{ result['url'] }}"><img src="{{ result['image_url'] }}" style="width:100px;height:200px;">{{ result['name'] }}
+        <div>{{ result['priceLabel'] }}</div></a>
+        {% if "user_id" in session %}
+            <button class="save-button" data-listingdata="{{ result['id'] }}" >Save</button>
+        {% endif %}
+      </div>
+    {% endfor %}
     </div>
-  {% endfor %}
+ 
 
 
     
     <script> // try document ready & load the jquery tag in the head
+    ( function () {
+
+    $('.sortradiobutton').click(function (evt) {
+        let sortingMethod = $(this).val(); // check which value of sorting method is selected
+        console.log(sortingMethod);
+
+        if (sortingMethod == "lowtohigh")
+        {
+          sortAscending("price");
+        }
+        else if (sortingMethod == "hightolow")
+        {
+          sortDescending("price");
+        }
+        else if (sortingMethod == "popularity") 
+        {
+          sortAscending("popularity");
+        }
+        else if (sortingMethod == "sortbrand")
+        {
+          sortbyBrand("brand")
+        }
+
+    });
+
+    function sortAscending(sortparam)
+    {
+      let products = $('.list-item');
+      products.show();
+      products.sort(function(a, b) {
+        return $(a).data(sortparam)-$(b).data(sortparam)});
+        $(".product-list").html(products);
+        console.log("used sortProductsPriceAscending");
+
+      }
+
+    function sortDescending(sortparam)
+    {
+      let products = $('.list-item');
+      products.show();
+      products.sort(function(a, b) {
+        return $(b).data(sortparam)-$(a).data(sortparam)});
+        $(".product-list").html(products);
+        console.log("used sortProductsPriceDescending");
+
+      }
+
+    function sortbyBrand(sortparam)
+    {
+      let products = $('.list-item');
+      console.log(products);
+      // console.log(products.data(sortparam));
+      console.log($('.brand-select :selected').value());
+      if (products.data(sortparam) == $(".brand-select").val()) {
+       $(".product-list").html(products); }
+      else {
+        products.hide();
+      }
+
+    }
+
+    
     $('.save-button').click(function (evt) {
         let listingdata = $(this).data("listingdata"); // may need JSON dumps here
         // $(this).html("saved");
@@ -55,6 +137,9 @@
         };
         $(this).html("Saved");
 })
+
+})
+();
 
 </script>
 

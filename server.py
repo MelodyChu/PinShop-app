@@ -30,6 +30,7 @@ bcrypt = Bcrypt(app)
 app.secret_key = "ABC"
 
 app.jinja_env.undefined = StrictUndefined
+app.jinja_env.auto_reload = True
 
 ############
 # HELPER FUNCTIONS (to go into another file later)
@@ -81,6 +82,10 @@ def check_clothing_type(clarifai_concepts):
     print 'top'
     return 'top'
 
+def subtract(a,b):
+    """Grab the brand name from Shopstyle by subtracting brandedName from unbrandedName"""
+    return "".join(a.rsplit(b)).strip()
+
 def ShopStyleResults(c_concepts, c_color='', size=''): # make sure to include size too # make c_color & size have default values
     """Construct ShopStyle API request using concepts extrated from Clarifai & Pinterest"""
 
@@ -108,10 +113,19 @@ def ShopStyleResults(c_concepts, c_color='', size=''): # make sure to include si
 
         shop_dict["id"] = prop["id"]
         shop_dict["name"] = prop["name"]
-        shop_dict["price"] = prop["priceLabel"]
+        shop_dict["priceLabel"] = prop["priceLabel"]
+        shop_dict["price"] = prop["price"]
         shop_dict["image_url"] = prop["image"]["sizes"]["Best"]["url"]
         shop_dict["url"] = prop["clickUrl"]
+        shop_dict["brand"] = subtract(prop["brandedName"], prop["unbrandedName"]) #call subtract function
+        # if prop["brand"]:
+        #     shop_dict["brand"] = prop["brand"]["name"]
+        # else:
+        #     shop_dict["brand"] = ""
         total_list.append(shop_dict)
+
+    # import pdb; pdb.set_trace()
+
     
     return total_list #returns list of dictionaries associated with shopstyle item
 
@@ -410,8 +424,15 @@ def show_results():
 
     results = json.loads(request.args.get('results')) #changes to list of dicts
 
+    brand_set = set() #create a set for brands; take out blank brands and remove duplicates
+    for result in results:
+        if result["brand"] != '':
+            brand_set.add(result["brand"])
+    print brand_set
 
-    return render_template("results.html", results=results) #This works for shopstyle! YAY!
+    #import pdb; pdb.set_trace()
+
+    return render_template("results.html", results=results, enumerate=enumerate, brand_set=brand_set) #This works for shopstyle! YAY!
 
 @app.route('/get-item-info', methods=['GET'])
 def get_info():

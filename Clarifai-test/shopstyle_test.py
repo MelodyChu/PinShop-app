@@ -53,6 +53,9 @@ import requests
 #     return results
 
 
+def subtract(a,b):
+     return "".join(a.rsplit(b)).strip()
+
 
 
 def ShopStyleResults(c_concepts, c_color='', size=''): # make sure to include size too; size is a str
@@ -86,6 +89,7 @@ def ShopStyleResults(c_concepts, c_color='', size=''): # make sure to include si
         shop_dict["price"] = prop["priceLabel"]
         shop_dict["image_url"] = prop["image"]["sizes"]["Best"]["url"]
         shop_dict["url"] = prop["clickUrl"]
+        shop_dict["brand"] = subtract(prop["brandedName"], prop["unbrandedName"]) #call subtract function
         total_list.append(shop_dict)
     
     return total_list #returns list of dictionaries associated with shopstyle item
@@ -118,7 +122,7 @@ def ShopStyleResults(c_concepts, c_color='', size=''): # make sure to include si
     
 #     return total_list
 
-test = ShopStyleResults(['women','midi','kimono'], 'Gray','Small') # need to process spaces, colons, commas
+test = ShopStyleResults(['skirt','sequins','midi'], 'gray') # need to process spaces, colons, commas
 print "***SHOPSTYLE RETRIES****"
 print test
 
