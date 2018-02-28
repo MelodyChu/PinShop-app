@@ -21,3 +21,18 @@ body {
 .slide {
     border-radius:10px;
 }
+
+.welcome {
+    position: absolute;
+    bottom: 220px;
+    justify-content: center;
+    width: 100%;
+    text-align: center;
+
+}
+
+.welcome-button {
+    display: flex;
+    justify-content: center;
+    text-align: center;
+}
