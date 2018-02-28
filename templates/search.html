@@ -1,8 +1,15 @@
 {% extends 'base.html' %}
 {% block content %}
-    <h1>PinShop</h1>
-    <div>
-    <p><h3>Search for your favorite styles by using your pins and images!</h3></p>
+<div class="container-fluid">
+    <div class="row"></div>
+        <div class="col-xs-offset-5 col-xs-7">
+            <h1>PinShop</h1>
+        </div>
+    
+    <div class="row"></div>
+      <div class="col-xs-offset-3 col-xs-9">
+        <p><h3>Search for your favorite styles by using your pins and images!</h3></p>
+    </div>
 </div>
      <form action="/search" method="POST" id="image_form">
       <p><h4>Search by Image URL</h4></p>

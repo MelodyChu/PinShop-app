@@ -15,7 +15,7 @@
   <script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.js"></script>
 
   <!-- Some CSS -->
-  <!-- <link href="static/style.css" rel="stylesheet"> -->
+  <link href="static/style.css" rel="stylesheet">
 </head>
 <body>
 <nav class="navbar navbar-inverse" style="margin-bottom: 0px">
@@ -59,7 +59,7 @@
 </nav>
 <div id="extending">
   {% for flash in get_flashed_messages() %}
-    <div class="alert alert-danger" style="width:90%; margin:0 auto;">{{ flash }}</div>
+    <div class="alert alert-success" style="width:90%; margin:0 auto;">{{ flash }}</div>
   {% endfor %}
 {% block content %}
 {% endblock %}

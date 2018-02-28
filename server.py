@@ -247,9 +247,11 @@ def set_val_user_id(): #does this go here? this works
 
 @app.route('/', methods=['GET']) 
 def get_homepage():
-    """Show homepage for non-logged in users"""
-
-    return render_template("homepage.html")
+    """Show homepage for non-logged in users. Only show for users who are logged out/do not have account"""
+    if session.get("user_id"):
+        return redirect("/search")
+    else:
+        return render_template("homepage.html")
 
 @app.route('/register', methods=['GET']) 
 def register_form():
@@ -331,7 +333,7 @@ def logout():
         del session["board"]
 
     flash("Logged Out.")
-    return redirect("/search")
+    return redirect("/")
 
 
 @app.route('/search', methods=['GET', 'POST']) # how to customize search URL per user?
@@ -426,7 +428,7 @@ def show_results():
 
     brand_set = set() #create a set for brands; take out blank brands and remove duplicates
     for result in results:
-        if result["brand"] != '':
+        if result["brand"]: #include blanks in set
             brand_set.add(result["brand"])
     print brand_set
 

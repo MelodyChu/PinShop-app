@@ -13,12 +13,11 @@
   <input type="radio" name="result-sort" class="sortradiobutton" id="hightolow" value="hightolow">
   <label for="hightolow">Price: High to Low
   
-
   <input type="radio" name="result-sort" class="sortradiobutton" id="sortbrand" value="sortbrand">
   <label for="sortbrand">Specific Brand
-   <select name="brand-dropdown">
+   <select name="brand-dropdown" id="brand-dropdown">
     {% for brand in brand_set %}
-      <option class="brand-select" value="{{ brand }}">{{ brand }}</li>
+      <option class="brand-select" value="{{ brand }}">{{ brand }}</option>
     {% endfor %}
   </select>
   </div>
@@ -89,14 +88,14 @@
     function sortbyBrand(sortparam)
     {
       let products = $('.list-item');
-      console.log(products);
-      // console.log(products.data(sortparam));
-      console.log($('.brand-select :selected').value());
-      if (products.data(sortparam) == $(".brand-select").val()) {
-       $(".product-list").html(products); }
-      else {
-        products.hide();
-      }
+      let selectedBrand = $('#brand-dropdown').find(":selected").text();
+      
+      let filtered = products.filter(function(idx, element) {
+        console.log($(element).data(sortparam) != selectedBrand)
+        return ($(element).data(sortparam) != selectedBrand)
+      }).hide();
+
+      console.log(filtered)
 
     }
 

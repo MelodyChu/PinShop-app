@@ -1,3 +1,23 @@
 .grid-item {
-  border-radius: 5px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  border-collapse: separate; 
+}
+
+body {
+    background-color: #ccd6e5; 
+}
+
+#search-click {
+    margin-right:10px;
+    margin-bottom:20px;
+}
+
+#sign-up {
+    margin-left:10px;
+    margin-bottom:20px;
+}
+
+.slide {
+    border-radius:10px;
 }

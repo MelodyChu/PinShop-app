@@ -12,8 +12,8 @@ ReactDOM.render(
 class SearchClick extends React.Component { 
 
     render() {
-        return <a href="http://localhost:5001/search"><button>
-                   Search!</button></a>
+        return <a href="http://localhost:5001/search"><button id="search-click" className="btn btn-primary">
+                   Search</button></a>
     }
 }
 
@@ -25,8 +25,8 @@ ReactDOM.render(
 class SignUp extends React.Component { 
 
     render() {
-        return <a href="http://localhost:5001/register"><button>
-                   Sign Up!</button></a>
+        return <a href="http://localhost:5001/register"><button id="sign-up" className="btn btn-primary">
+                   Sign Up</button></a>
     }
 }
 
@@ -54,15 +54,28 @@ ReactDOM.render(
 {/* Create Slides */}
 
 const SlideOne = (props) => {
-  return <div className="slide"><img src="https://t4.ftcdn.net/jpg/00/79/84/03/240_F_79840369_XBIgbOK4z6PpHwIH8EweqQDseEa3Ec0c.jpg" /></div>
+
+    {/*// let background = {
+    //     backgroundImage: "https://images.pexels.com/photos/443088/pexels-photo-443088.jpeg?w=940&h=650&dpr=2&auto=compress&cs=tinysrgb",
+    //     backgroundSize: 'cover',
+    //     backgroundPosition: 'center'  
+    // } */}
+  {/*return <div className="slide"><img src="https://t4.ftcdn.net/jpg/00/79/84/03/240_F_79840369_XBIgbOK4z6PpHwIH8EweqQDseEa3Ec0c.jpg" /></div>*/}
+  return <div className="slide"><img src="https://images.pexels.com/photos/443088/pexels-photo-443088.jpeg?w=940&h=650&dpr=2&auto=compress&cs=tinysrgb" width={600} height={400} mode='fit' /></div>
 }
 
 const SlideTwo = (props) => {
-  return <div className="slide"><img src="https://www.purseblog.com/images/2015/01/Purseonals-Chanel-Reissue-227-2.jpg" /></div>
+
+  {/*return <div className="slide"><img src="https://www.purseblog.com/images/2015/01/Purseonals-Chanel-Reissue-227-2.jpg" /></div>*/}
+  return <div className="slide"><img src="https://images.pexels.com/photos/674268/pexels-photo-674268.jpeg?h=350&dpr=2&auto=compress&cs=tinysrgb" width={600} height={400} mode='fit' /></div>
+ 
 }
 
 const SlideThree = (props) => {
-  return <div className="slide"><img src="http://weandthecolor.com/wp-content/uploads/2012/11/Black-and-White-Fashion-Photography-by-Riccardo-Vimercati-2343668.jpg" /></div>
+
+  {/*return <div className="slide"><img src="http://weandthecolor.com/wp-content/uploads/2012/11/Black-and-White-Fashion-Photography-by-Riccardo-Vimercati-2343668.jpg" /></div>*/}
+  return <div className="slide"><img src="https://images.pexels.com/photos/48588/pexels-photo-48588.jpeg?w=940&h=650&dpr=2&auto=compress&cs=tinysrgb" width={600} height={400} mode='fit' /></div>
+  
 }
 
 {/* Create Arrows */}
