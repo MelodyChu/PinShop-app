@@ -64,7 +64,7 @@ const Slide = (props) => {
     //     backgroundPosition: 'center'  
     // } */}
   {/*return <div className="slide"><img src="https://t4.ftcdn.net/jpg/00/79/84/03/240_F_79840369_XBIgbOK4z6PpHwIH8EweqQDseEa3Ec0c.jpg" /></div>*/}
-  return <div className="slide"><img src={props.imgSrc} width="100%" height="auto" mode='fit' /></div>
+  return <div className="slide"><img src={props.imgSrc} width="100%" height="auto" /></div>
 }
 
 

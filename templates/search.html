@@ -11,11 +11,16 @@
         <p><h3>Search for your favorite styles by using your pins and images!</h3></p>
     </div>
 </div>
+
+<div class="split-left">
      <form action="/search" method="POST" id="image_form">
       <p><h4>Search by Image URL</h4></p>
     <div class="form-group">
       <label>Image URL:
           <input type="url" name="image_URL" class="image_URL" id="image_URL">
+          <div>
+            <img id="image_preview" src="" />
+          </div>
       </label>
       <input type="hidden" name="image_desc" id="image_desc"></input>
     </div>
@@ -69,6 +74,11 @@
     </div>
 
   </form>
+</div>
+</div>
+
+
+<div class="split-right">
 
   {# SEARCH FOR BOARD PORTION IF USER PROVIDES PINTEREST NAME #}
   <form action="/search" method="GET"> {# make sure this is correctly a get request; need to send board name #}
@@ -95,10 +105,11 @@
 <div class="grid" id="pin-list">
   {% for pin in melody_pins %} {# melody_pins can either be sample pins or melody's pins depending on session #}
     <div class="grid-item">
-      <a href="{{ pin['link'] }}" ><img src="{{ pin['image'] }}"></a> {# {{ pin['description'] }} #}
+      <a href="{{ pin['link'] }}" ><img src="{{ pin['image'] }}" class="pin_image"></a> {# {{ pin['description'] }} #}
       <input type="radio" name="pin-select" class="radiobutton" data-pinimage="{{ pin['image'] }}" data-pindesc="{{ pin['description'] }}">
     </div>
   {% endfor %}
+</div>
 </div>
 
 <script type="text/javascript">
@@ -118,9 +129,28 @@ $('.radiobutton').click(
     console.log(button_data);
     console.log(description);
     $("#image_URL")[0].value = button_data;
-    $('#image_desc')[0].value = description 
+    $('#image_desc')[0].value = description;
+    $('#image_preview').attr("src", button_data)
   }
   )
+
+$('#image_URL').on('change', function() {
+
+  $('#image_preview').prop('src', this.value);
+}
+
+  );
+// function readURL(input) {
+//   if (input.url && input.url[0]) {
+//     let reader = new FileReader();
+//     reader.onload = function (e) {
+//       $("#image_preview")
+//           .attr('src', e.target.result)
+//     };
+//     reader.readAsDataURL(input.url[0]);
+//   }
+
+// }
 
 </script>
 {% endblock %}

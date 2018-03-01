@@ -1,13 +1,10 @@
-.grid-item {
-  border-radius: 10px;
-  margin-bottom: 20px;
-  border-collapse: separate; 
-}
+/*Base Styling*/
 
 body {
     background-color: #ccd6e5; 
 }
 
+/*Homepage Styling*/
 #search-click {
     margin-right:10px;
     margin-bottom:20px;
@@ -19,20 +16,53 @@ body {
 }
 
 .slide {
-    border-radius:10px;
+    opacity: 0.75;
 }
 
 .welcome {
     position: absolute;
-    bottom: 220px;
+    top: 200px;
     justify-content: center;
     width: 100%;
     text-align: center;
-
+    z-index: 1000;
 }
 
 .welcome-button {
     display: flex;
     justify-content: center;
     text-align: center;
+}
+
+/*Search Page Styling*/
+.split-left {
+    position: absolute;
+    top: 200px;
+    bottom: 0;
+    left: 0;
+    width: 30%;
+    overflow-y: scroll;
+}
+
+.split-right {
+    position: absolute;
+    top: 200px;
+    bottom: 0;
+    right: 0;
+    overflow-y: scroll;
+    width: 70%;
+}
+
+.pin_image {
+  border-radius: 10px;
+  margin-bottom: 20px;
+  border-collapse: separate; 
+}
+
+#image_preview {
+    max-width: 50%;
+    height: auto;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    margin-top: 20px;
 }
