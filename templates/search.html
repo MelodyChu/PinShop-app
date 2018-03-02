@@ -3,12 +3,12 @@
 <div class="container-fluid">
     <div class="row"></div>
         <div class="col-xs-offset-5 col-xs-7">
-            <h1>PinShop</h1>
+            <h1 id="search-page-head">PinShop</h1>
         </div>
     
     <div class="row"></div>
       <div class="col-xs-offset-3 col-xs-9">
-        <p><h3>Search for your favorite styles by using your pins and images!</h3></p>
+        <p><h3 id="search-page-desc">Search for your favorite styles by using your pins and images!</h3></p>
     </div>
 </div>
 
@@ -19,6 +19,7 @@
       <label>Image URL:
           <input type="url" name="image_URL" class="image_URL" id="image_URL">
           <div>
+            <div id="default_shape"></div>
             <img id="image_preview" src="" />
           </div>
       </label>
@@ -101,7 +102,7 @@
   {% endif %}
 
   {# SEARCH FOR SPECIFIC PIN AND SUBMIT #}
-<script src="/path/to/masonry.pkgd.min.js"></script> <!-- Masonry jquery .js file -->
+
 <div class="grid" id="pin-list">
   {% for pin in melody_pins %} {# melody_pins can either be sample pins or melody's pins depending on session #}
     <div class="grid-item">
@@ -113,13 +114,18 @@
 </div>
 
 <script type="text/javascript">
+$(window).on("load", function() {
+  console.log("about to do masonry");
+
 
 $('.grid').masonry({
   itemSelector: '.grid-item',
-  columnWidth: 100,
+  columnWidth: 80,
   horizontalOrder: true,
-  gutter: 20
+  gutter: 10
 });
+
+console.log("done to do masonry");
 
 $('.radiobutton').click(
   function (evt) {
@@ -151,6 +157,6 @@ $('#image_URL').on('change', function() {
 //   }
 
 // }
-
+});
 </script>
 {% endblock %}

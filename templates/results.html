@@ -25,7 +25,7 @@
     <div class="product-list">
     {% for i, result in enumerate(results) %}
       <div class="list-item" id="{{ result['id'] }}" data-price="{{ result['price'] }}" data-popularity="{{ i }}" data-brand="{{ result['brand'] }}" >
-        <a class="product-info" href="{{ result['url'] }}"><img src="{{ result['image_url'] }}" style="width:100px;height:200px;">{{ result['name'] }}
+        <a class="product-info" href="{{ result['url'] }}"><img src="{{ result['image_url'] }}" class="result_image">{{ result['name'] }}
         <div>{{ result['priceLabel'] }}</div></a>
         {% if "user_id" in session %}
             <button class="save-button" data-listingdata="{{ result['id'] }}" >Save</button>

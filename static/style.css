@@ -35,6 +35,24 @@ body {
 }
 
 /*Search Page Styling*/
+#search-page-head {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+#search-page-desc {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+#default_shape {
+    border-style: dotted;
+    border-color: black;
+    width: 100px;
+    height: 200px;
+    background-color: white;
+}
+
 .split-left {
     position: absolute;
     top: 200px;
@@ -54,7 +72,7 @@ body {
 }
 
 .pin_image {
-  border-radius: 10px;
+  border-radius: 5px;
   margin-bottom: 20px;
   border-collapse: separate; 
 }
@@ -62,7 +80,29 @@ body {
 #image_preview {
     max-width: 50%;
     height: auto;
-    border-radius: 10px;
+    border-radius: 5px;
     margin-bottom: 20px;
     margin-top: 20px;
 }
+
+/*Results Page Styling*/
+.result_image {
+    max-width: 75%;
+    height: auto;
+    max-height: 300px;
+    border-radius: 5px;
+}
+
+
+/*Bookmarks Page Styling*/
+.bookmark_image {
+    max-width: 75%;
+    height: auto;
+    max-height: 300px;
+    border-radius: 5px;
+}
+
+
+
+
+

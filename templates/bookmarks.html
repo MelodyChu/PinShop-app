@@ -2,11 +2,28 @@
 {% block content %}
 
     <h1>Bookmarks</h1>
+
+    <div class="grid">
     {% for bookmark in listing_list %}
-    <div>
-      <a href="{{ bookmark.listing_url }}"><img src="{{ bookmark.listing_image }}" style="width:100px;height:200px;">{{ bookmark.listing_title }}</a>
+    <div class="grid-item">
+      <a href="{{ bookmark.listing_url }}"><img src="{{ bookmark.listing_image }}" class="bookmark_image"></a> {# {{ bookmark.listing_title }} #}
         <p>{{ bookmark.listing_price }}</p> 
     </div>
   {% endfor %}
+  </div>
 
+<script type="text/javascript">
+$(window).on("load", function() {
+
+$('.grid').masonry({
+  itemSelector: '.grid-item',
+  columnWidth: 80,
+  horizontalOrder: true,
+  gutter: 10
+});
+
+});
+
+</script>
 {% endblock %}
+
