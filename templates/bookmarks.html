@@ -6,7 +6,8 @@
     <div class="grid">
     {% for bookmark in listing_list %}
     <div class="grid-item">
-      <a href="{{ bookmark.listing_url }}"><img src="{{ bookmark.listing_image }}" class="bookmark_image"></a> {# {{ bookmark.listing_title }} #}
+      <a href="{{ bookmark.listing_url }}"><img src="{{ bookmark.listing_image }}" class="bookmark_image"></a>{# {{ bookmark.listing_brand }} #}
+      {# {{ bookmark.listing_title }} #}
         <p>{{ bookmark.listing_price }}</p> 
     </div>
   {% endfor %}

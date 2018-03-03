@@ -75,6 +75,7 @@ class EtsyResult(db.Model): #rename to bookmarks intermediary table / associatio
     listing_url = db.Column(db.String(2000), nullable=False)
     listing_image = db.Column(db.String(2000), nullable=False) #image URL of etsy image
     listing_price = db.Column(db.Float, nullable=True)
+    listing_brand = db.Column(db.String(2000), nullable=True)
 
 
     bookmarks = db.relationship('Bookmark') 
