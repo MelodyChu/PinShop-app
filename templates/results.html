@@ -22,23 +22,34 @@
   </select>
   </div>
 
-<ul class="cards">
-    <li class="product-list"> <!-- same as cards__item -->
+
+     <!-- same as wrapper -->
+  <div class="container">
     {% for i, result in enumerate(results) %} <!-- list_item is card -->
-      <div class="list-item" id="{{ result['id'] }}" data-price="{{ result['price'] }}" data-popularity="{{ i }}" data-brand="{{ result['brand'] }}" >
-        <div><img src="{{ result['image_url'] }}" class="result_image"></div>
-        <div class="text-container"> <!-- same as card content -->
-          <a class="product-info" href="{{ result['url'] }}"> <!-- same as card__title -->
-            <h5>{{ result['name'] }}</h5></a>
-          <p>{{ result['priceLabel'] }}</p>
-        {% if "user_id" in session %}
-            <button class="save-button" data-listingdata="{{ result['id'] }}" >Save</button>
-        {% endif %}
+      <div class="product-list">
+        <div class="list-item" id="{{ result['id'] }}" data-price="{{ result['price'] }}" data-popularity="{{ i }}" data-brand="{{ result['brand'] }}">
+          <div class="result_image">
+            <img src="{{ result['image_url'] }}">
+          </div>
+          <div class="product-info"> <!-- same as card content -->
+            <div class="product-text"> <!-- same as card__title -->
+              <h5><a href="{{ result['url'] }}">{{ result['name'] }}</a></h5>
+              <p>{{ result['priceLabel'] }}</p>
+            </a>
+            {% if "user_id" in session %}
+              <div class="save-button" data-listingdata="{{ result['id'] }}">
+                <button type="button">Save</button>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
     {% endfor %}
-    </div>
-    </div>
-    </li>
-  </ul>
+  </div>
+
+
+
 
  
     <script> // try document ready & load the jquery tag in the head

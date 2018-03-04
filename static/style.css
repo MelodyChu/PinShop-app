@@ -1,7 +1,9 @@
 /*Base Styling*/
 
 body {
-    background-color: #ccd6e5; 
+    /*background-image: url("https://images.pexels.com/photos/255379/pexels-photo-255379.jpeg?w=940&h=650&dpr=2&auto=compress&cs=tinysrgb");
+    background-color: #ccd6e5; */
+    background-color: white;
 }
 
 /*Homepage Styling*/
