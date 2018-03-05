@@ -469,7 +469,7 @@ def save_result():
                             listing_title=listing_data["name"],
                             listing_url=listing_data["clickUrl"],
                             listing_image=listing_data["image"]["sizes"]["Best"]["url"],
-                            listing_price=listing_data["price"],
+                            listing_price=listing_data["price"], #check this
                             listing_brand=listing_data["brand"]["name"]) # not going to use price $ label here; #
         db.session.add(listing)
         db.session.commit()

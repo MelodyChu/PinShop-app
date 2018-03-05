@@ -15,6 +15,7 @@ body {
     margin-bottom:20px;
 }
 
+
 .slide {
     opacity: 0.75;
 }
@@ -32,6 +33,23 @@ body {
     display: flex;
     justify-content: center;
     text-align: center;
+}
+
+/* Registration Page Styling */
+
+.reg-container {
+    margin-top: 0px;
+    background-image: url("https://images.pexels.com/photos/322207/pexels-photo-322207.jpeg?w=940&h=650&dpr=2&auto=compress&cs=tinysrgb");
+    /* https://images.pexels.com/photos/697059/pexels-photo-697059.jpeg?w=940&h=650&dpr=2&auto=compress&cs=tinysrgb */
+    opacity: 0.75;
+}
+
+.reg-container h1 {
+    margin: 0px;
+}
+
+.reg-container form {
+    z-index: 1000;
 }
 
 /*Search Page Styling*/
@@ -150,7 +168,7 @@ body {
   text-overflow: ellipsis;
   word-wrap: break-word;
   overflow: hidden;
-  max-height: 3.8em;
+  height: 3.8em;
   line-height: 1.9em;
 }
 
@@ -215,7 +233,7 @@ body {
   height: auto;
 }*/
 
-.bookmark_image {
+/*.bookmark_image {
     max-width: 100%;
     height: auto;
     max-height: 300px;
@@ -227,7 +245,7 @@ body {
   border-radius: 5px;
   width: 25%;
   /*width: fit content;*/
-  height: 40%;
+  /*height: 40%;
   display: inline-block;
   color: gray;
   text-align: center;
@@ -240,6 +258,6 @@ body {
   display: flex;
   flex-wrap: wrap;
   overflow: hidden;
-}
+}*/
 
 

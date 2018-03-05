@@ -3,17 +3,25 @@
 
     <h1>Bookmarks</h1>
 
-    <div class="grid">
+    <div class="container">
     {% for bookmark in listing_list %}
-    <div class="grid-item bookmark-item">
-      <a href="{{ bookmark.listing_url }}"><img src="{{ bookmark.listing_image }}" class="bookmark_image"></a>{# {{ bookmark.listing_brand }} #}
-      <div class="bookmark_text">
-      <p>{{ bookmark.listing_title }}</p>
-        <p>{{ bookmark.listing_price }}</p> 
+    <div class="product-list">
+      <div class="list-item">
+        <div class="result_image">
+          <img src="{{ bookmark.listing_image }}" class="bookmark_image">
+        </div>
+      <div class="product-info">
+        <div class="product-text">
+          <h5><a href="{{ bookmark.listing_url }}">
+          {{ bookmark.listing_title }}</h5></a>
+          <p>{{ "${:,.0f}".format(bookmark.listing_price) }}</p> 
+        </div>
       </div>
     </div>
-  {% endfor %}
   </div>
+  {% endfor %}
+</div>
+
 
 
 {% endblock %}

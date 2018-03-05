@@ -53,7 +53,9 @@ ReactDOM.render(
 const IMAGES = [
     "https://images.pexels.com/photos/443088/pexels-photo-443088.jpeg?w=940&h=650&dpr=2&auto=compress&cs=tinysrgb",
     "https://images.pexels.com/photos/674268/pexels-photo-674268.jpeg?h=350&dpr=2&auto=compress&cs=tinysrgb",
-    "https://images.pexels.com/photos/48588/pexels-photo-48588.jpeg?w=940&h=650&dpr=2&auto=compress&cs=tinysrgb"
+    "https://images.pexels.com/photos/48588/pexels-photo-48588.jpeg?w=940&h=650&dpr=2&auto=compress&cs=tinysrgb",
+    "https://images.pexels.com/photos/361758/pexels-photo-361758.jpeg?w=940&h=650&dpr=2&auto=compress&cs=tinysrgb",
+    "https://images.pexels.com/photos/374845/pexels-photo-374845.jpeg?w=940&h=650&dpr=2&auto=compress&cs=tinysrgb"
 ]
 
 const Slide = (props) => {
