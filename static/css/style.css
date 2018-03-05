@@ -1,0 +1,245 @@
+/*Base Styling*/
+
+body {
+    background-color: #ccd6e5;     
+}
+
+/*Homepage Styling*/
+#search-click {
+    margin-right:10px;
+    margin-bottom:20px;
+}
+
+#sign-up {
+    margin-left:10px;
+    margin-bottom:20px;
+}
+
+.slide {
+    opacity: 0.75;
+}
+
+.welcome {
+    position: absolute;
+    top: 200px;
+    justify-content: center;
+    width: 100%;
+    text-align: center;
+    z-index: 1000;
+}
+
+.welcome-button {
+    display: flex;
+    justify-content: center;
+    text-align: center;
+}
+
+/*Search Page Styling*/
+#search-page-head {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+#search-page-desc {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.split-left {
+    position: absolute;
+    top: 200px;
+    bottom: 0;
+    left: 0;
+    width: 30%;
+    overflow-y: scroll;
+}
+
+.split-right {
+    position: absolute;
+    top: 200px;
+    bottom: 0;
+    right: 0;
+    overflow-y: scroll;
+    width: 70%;
+}
+
+.pin_image {
+  border-radius: 5px;
+  margin-bottom: 20px;
+  border-collapse: separate; 
+}
+
+#image_preview {
+    max-width: 50%;
+    height: auto;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    margin-top: 20px;
+}
+
+/*Results Page Styling*/
+.container {
+    margin: auto;
+    text-align: center;
+}
+
+.product-list {
+    display: inline-block;
+  /*height: 210px;
+  width: 327px;*/
+  width: 210px;
+  height: 327px;
+  margin: 50px auto;
+  margin-right: 50px;
+  border-radius: 7px 7px 7px 7px;
+  /* VIA CSS MATIC https://goo.gl/cIbnS */
+  -webkit-box-shadow: 0px 14px 32px 0px rgba(0, 0, 0, 0.15);
+  -moz-box-shadow: 0px 14px 32px 0px rgba(0, 0, 0, 0.15);
+  box-shadow: 0px 14px 32px 0px rgba(0, 0, 0, 0.15);
+}
+
+.result_image {
+  float: left;
+  /*height: 210px;
+  width: 163px;*/
+  border-radius: 7px 7px 0px 0px;
+  width: 210px;
+  height: auto;
+  background-color: #FFF;
+  text-align: center;
+  box-shadow: 0 0 8px 8px white inset;
+  /*display: flex;*/
+}
+
+.result_image img {
+  border-radius: 7px 7px 0px 0px;
+ /* height: 210px;*/
+ height: 250px;
+ width: auto;
+ max-width: 210px;
+}
+
+.product-info {
+  float: left;
+  /*height: 210px;
+  width: 163px;*/
+  width: 210px;
+  height: 130px;
+  border-radius: 0px 0px 7px 7px;
+  background-color: #ffffff;
+}
+
+.product-text {
+  /*margin: 0 0 0 38px;
+  padding-top: 52px;*/
+  font-size: 34px;
+  color: #474747;
+  padding: 10px;
+}
+
+.product-text h5 {
+  margin: 0px;
+  padding: 0px;
+  font-size: 13px;
+  font-family: 'Raleway', sans-serif;
+  font-weight: 400;
+  text-transform: uppercase;
+  color: #d2d2d2;
+  letter-spacing: 0.1em;
+  display: block; /* or inline-block */
+  text-overflow: ellipsis;
+  word-wrap: break-word;
+  overflow: hidden;
+  max-height: 3.8em;
+  line-height: 1.9em;
+}
+
+.product-text p {
+  margin: 0 0 0 0px;
+  font-family: 'Playfair Display', serif;
+  color: #8d8d8d;
+  line-height: 1.7em;
+  font-size: 15px;
+  font-weight: lighter;
+  overflow: hidden;
+}
+
+.product-text a {
+    color: #333;
+    text-decoration: none;
+}
+
+.product-text a:hover {
+    text-decoration: underline;
+}
+
+.save-button {
+  position: relative;
+  margin: -10px;
+}
+
+
+#save-button-click {
+  padding: 10px;
+  /*margin: 0 40px 0 16px;*/
+  box-sizing: border-box;
+  border: transparent;
+  border-radius: 60px;
+  font-family: 'Raleway', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: #ffffff;
+  background-color: #9cebd5;
+  cursor: pointer;
+  outline: none;
+  position: relative;
+  justify-content:center;
+}
+
+#save-button-click:hover {
+  background-color: #79b0a1;
+}
+/*.result_image {
+    max-width: 75%;
+    height: auto;
+    max-height: 300px;
+    border-radius: 5px;
+}
+*/
+
+/*Bookmarks Page Styling*/
+/*img {
+  width: 100%;
+  height: auto;
+}*/
+
+.bookmark_image {
+    max-width: 100%;
+    height: auto;
+    max-height: 300px;
+    border-radius: 5px;
+}
+
+.bookmark-item {
+  margin: 10px;
+  border-radius: 5px;
+  width: 25%;
+  /*width: fit content;*/
+  height: 40%;
+  display: inline-block;
+  color: gray;
+  text-align: center;
+  vertical-align: top;
+  background-color: white
+}
+
+.bookmark-text {
+  padding-right: 15px;
+  display: flex;
+  flex-wrap: wrap;
+  overflow: hidden;
+}
+
+

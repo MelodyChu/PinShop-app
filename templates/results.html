@@ -26,7 +26,7 @@
      <!-- same as wrapper -->
   <div class="container">
     {% for i, result in enumerate(results) %} <!-- list_item is card -->
-      <div class="product-list">
+      <div class="product-list" id="{{ result['id'] }}" data-price="{{ result['price'] }}" data-popularity="{{ i }}" data-brand="{{ result['brand'] }}">
         <div class="list-item" id="{{ result['id'] }}" data-price="{{ result['price'] }}" data-popularity="{{ i }}" data-brand="{{ result['brand'] }}">
           <div class="result_image">
             <img src="{{ result['image_url'] }}">
@@ -38,7 +38,7 @@
             </a>
             {% if "user_id" in session %}
               <div class="save-button" data-listingdata="{{ result['id'] }}">
-                <button type="button">Save</button>
+                <button type="button" id="save-button-click" data-listingdata="{{ result['id'] }}">Save</button>
               </div>
             {% endif %}
           </div>
@@ -80,29 +80,29 @@
 
     function sortAscending(sortparam)
     {
-      let products = $('.list-item');
+      let products = $('.product-list');
       products.show();
       products.sort(function(a, b) {
         return $(a).data(sortparam)-$(b).data(sortparam)});
-        $(".product-list").html(products);
+        $(".container").html(products);
         console.log("used sortProductsPriceAscending");
 
       }
 
     function sortDescending(sortparam)
     {
-      let products = $('.list-item');
+      let products = $('.product-list');
       products.show();
       products.sort(function(a, b) {
         return $(b).data(sortparam)-$(a).data(sortparam)});
-        $(".product-list").html(products);
+        $(".container").html(products);
         console.log("used sortProductsPriceDescending");
 
       }
 
     function sortbyBrand(sortparam)
     {
-      let products = $('.list-item');
+      let products = $('.product-list');
       let selectedBrand = $('#brand-dropdown').find(":selected").text();
       
       let filtered = products.filter(function(idx, element) {
