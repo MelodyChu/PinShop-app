@@ -110,8 +110,9 @@
 <div class="grid" id="pin-list">
   {% for pin in melody_pins %} {# melody_pins can either be sample pins or melody's pins depending on session #}
     <div class="grid-item">
-      <a href="{{ pin['link'] }}" ><img src="{{ pin['image'] }}" class="pin_image"></a> {# {{ pin['description'] }} #}
-      <input type="radio" name="pin-select" class="radiobutton" data-pinimage="{{ pin['image'] }}" data-pindesc="{{ pin['description'] }}">
+      {# <a href="{{ pin['link'] }}" ></a> #}
+      <img src="{{ pin['image'] }}" class="pin_image" name="pin-select" data-pinimage="{{ pin['image'] }}" data-pindesc="{{ pin['description'] }}"> {# {{ pin['description'] }} #}
+      {# <input type="radio" name="pin-select" class="radiobutton" data-pinimage="{{ pin['image'] }}" data-pindesc="{{ pin['description'] }}"> #}
     </div>
   {% endfor %}
 </div>
@@ -132,7 +133,7 @@ $('.grid').masonry({
 
 console.log("done to do masonry");
 
-$('.radiobutton').click(
+$('.pin_image').click(
   function (evt) {
    
     let button_data = $(this).data("pinimage");

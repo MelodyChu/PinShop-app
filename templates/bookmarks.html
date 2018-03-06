@@ -7,13 +7,13 @@
     {% for bookmark in listing_list %}
     <div class="product-list">
       <div class="list-item">
+        <a href="{{ bookmark.listing_url }}">
         <div class="result_image">
           <img src="{{ bookmark.listing_image }}" class="bookmark_image">
         </div>
       <div class="product-info">
         <div class="product-text">
-          <h5><a href="{{ bookmark.listing_url }}">
-          {{ bookmark.listing_title }}</h5></a>
+          <h5>{{ bookmark.listing_title }}</h5></a>
           <p>{{ "${:,.0f}".format(bookmark.listing_price) }}</p> 
         </div>
       </div>
