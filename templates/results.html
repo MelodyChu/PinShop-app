@@ -37,8 +37,9 @@
               <p>{{ result['priceLabel'] }}</p>
             </a>
             {% if "user_id" in session %}
-              <div class="save-button" data-listingdata="{{ result['id'] }}">
-                <button type="button" id="save-button-click" data-listingdata="{{ result['id'] }}">Save</button>
+              <!-- <div data-listingdata="{{ result['id'] }}"> -->
+              <div class="save-button-div">
+                <button type="button" class="save-button" id="save-button-click" data-listingdata="{{ result['id'] }}">Save</button>
               </div>
             {% endif %}
           </div>

@@ -10,16 +10,19 @@
       <div class="col-xs-offset-3 col-xs-9">
         <p><h3 id="search-page-desc">Search for your favorite styles by using your pins and images!</h3></p>
     </div>
-</div>
+
 
 <div class="split-left">
+  <div class="search-form-container">
      <form action="/search" method="POST" id="image_form">
-      <p><h4>Search by Image URL</h4></p>
+      <p><h3 id="search-url-title">Search by Image URL</h3></p>
     <div class="form-group">
       <label>Image URL:
-          <input type="url" name="image_URL" class="image_URL" id="image_URL">
+          <input type="url" name="image_URL" class="form-control image_URL" id="image_URL">
           <div>
-            <div id="default_shape"></div>
+            <div id="default_shape">
+              <img src="/static/photo-camera.png" class="camera-icon">
+            </div>
             <img id="image_preview" src="" />
           </div>
       </label>
@@ -28,9 +31,9 @@
 
     <div>
         <label>
-          Top Size*
+          <div>Top Size</div>
           {% if session.get("user_id") %}
-            <select name="size">
+            <select name="size" class="size-selector">
               <option value="X-Small" {% if user.size == "X-Small" %} selected="selected" {% endif %}>X-Small</option>
               <option value="Small" {% if user.size == "Small" %} selected="selected" {% endif %}>Small</option>
               <option value="Medium" {% if user.size == "Medium" %} selected="selected" {% endif %}>Medium</option>
@@ -50,7 +53,7 @@
 
       <div>
         <label>
-          <p>Pant Size (US, inches)*</p>
+          <div>Pant Size (US, inches)</div>
           {% if "user_id" in session %}
             <input type="number" name="pant_size" min="23" max="40" value="{{ user.pant_size }}" class="form-control">
           {% else %}
@@ -61,7 +64,7 @@
 
       <div>
         <label>
-          Shoe Size (US)*
+          Shoe Size (US)
           {% if "user_id" in session %}
             <input type="number" name="shoe_size" min="4" max="13" step=".5" value="{{ user.shoe_size }}" class="form-control">
           {% else %}
@@ -75,7 +78,8 @@
     </div>
 
   </form>
-</div>
+  </div>
+  </div>
 </div>
 
 
@@ -84,11 +88,11 @@
   {# SEARCH FOR BOARD PORTION IF USER PROVIDES PINTEREST NAME #}
   <form action="/search" method="GET"> {# make sure this is correctly a get request; need to send board name #}
   {% if session.get("pin_username") %} {# if "pin_username" in session #}
-    <p><h4>Search your pins</h4></p>
-    <p><h4>Filter by specific board</h4></p> <!-- Allow user to input specific board name -->
+    <p><h3 class="pin-search-title">Search your pins</h3></p>
+    <!-- <p><h4>Filter by specific board</h4></p> Allow user to input specific board name -->
     <div class="form-group">
       <label>Pinterest Board Name:
-          <input type="text" name="board-name" class="board-name">
+          <input type="text" name="board-name" class="form-control board-name">
       </label>
     </div>
 
@@ -98,7 +102,7 @@
   </form>
 
   {% else %}
-    <p><h4>Search sample pins</h4></p>
+    <p><h3 class="pin-search-title">Search sample pins</h3></p>
   {% endif %}
 
   {# SEARCH FOR SPECIFIC PIN AND SUBMIT #}
@@ -110,6 +114,7 @@
       <input type="radio" name="pin-select" class="radiobutton" data-pinimage="{{ pin['image'] }}" data-pindesc="{{ pin['description'] }}">
     </div>
   {% endfor %}
+</div>
 </div>
 </div>
 
@@ -136,13 +141,15 @@ $('.radiobutton').click(
     console.log(description);
     $("#image_URL")[0].value = button_data;
     $('#image_desc')[0].value = description;
-    $('#image_preview').attr("src", button_data)
+    $('#image_preview').attr("src", button_data);
+    $('#default_shape').hide()
   }
   )
 
 $('#image_URL').on('change', function() {
 
   $('#image_preview').prop('src', this.value);
+  $('#default_shape').hide();
 }
 
   );

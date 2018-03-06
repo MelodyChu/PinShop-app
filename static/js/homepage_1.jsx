@@ -17,7 +17,7 @@ class SignUp extends React.Component {
 class Welcome extends React.Component {
     render() { 
         return <div className="welcome">
-            <h1>Welcome to PinShop!</h1>
+            <h1>Welcome to PinShop</h1>
             <div className="welcome-button">
                 <SearchClick /><SignUp />
             </div>

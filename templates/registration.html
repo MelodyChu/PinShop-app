@@ -1,52 +1,61 @@
 {% extends 'base.html' %}
 {% block content %}
-  <div class="reg-container">
-    <h1>Register</h1>
+  <div class="container-fluid reg-container">
+    <div class="form-container">
+    <h1>Tell us about yourself</h1>
 
     <form action="/register" method="POST">
 
       <div class="form-group">
         <label>
-            Email
-            <input type="email" name="email" class="form-control" required>
+            Email*
+            <input type="email" name="email" class="form-control input" required>
         </label>
       </div>
 
       <div class="form-group">
         <label>
-          Password
-          <input type="password" name="password" class="form-control" required>
+          Password*
+          <input type="password" name="password" class="form-control input" required>
         </label>
       </div>
 
       <div class="form-group">
         <label>
-          Pinterest Username <i>(Recommended)*</i>
-          <input type="text" name="pin-username" class="form-control" required>
+          Pinterest Username <i>(Recommended)</i>
+          <input type="text" name="pin-username" class="form-control input" required>
         </label>
       </div>
 
       <div class="form-group">
         <label>
-          Age*
-          <input type="number" name="age" class="form-control">
+          Age
+          <input type="number" name="age" class="form-control input">
         </label>
       </div>
 
       <div class="form-group">
         <label>
-          Gender*
-          <select name="gender">
+          Gender
+          <div>
+          <select name="gender" class="size-selector">
             <option value="Female">Female</option>
             <option value="Male">Male</option>
           </select>
         </label>
       </div>
+    </div>
 
-      <div class="form-group">
-        <label>
-          Top Size*
-          <select name="size">
+
+      <div class="clothing-form">
+      <span class="form-group top">
+        <label class="clothing-label">
+          Top Size
+          <div>
+            <img src="/static/sweater.png" class="clothing-icon">
+          </div>
+          <div>
+          <select name="size" class="size-selector">
             <option value="X-Small">X-Small</option>
             <option value="Small">Small</option>
             <option value="Medium">Medium</option>
@@ -55,28 +64,37 @@
         </select>
         </label>
       </div>
+      </span>
 
-      <div class="form-group">
-        <label>
-          Pant Size (US, inches)*
+      <span class="form-group bottom">
+        <label class="clothing-label">
+          Pant Size (US, inches)
+          <div>
+            <img src="/static/jeans.png" class="clothing-icon">
+          </div>
           <input type="number" name="pant_size" min="23" max="40" class="form-control">
         </label>
-      </div>
+      </span>
 
-      <div class="form-group">
-        <label>
-          Shoe Size (US)*
+      <span class="form-group shoe">
+        <label class="clothing-label">
+          Shoe Size (US)
+          <div>
+            <img src="/static/boots.png" class="clothing-icon">
+          </div>
           <input type="number" name="shoe_size" min="4" max="13" step=".5" class="form-control">
         </label>
-      </div>
+      </span>
+    </div>
 
-      <p><i>* indicates optional field</i></p>
+      <p><i>* indicates required field</i></p>
 
       <div class="form-group">
-        <input type="submit" value="Register" class="btn btn-primary">
+        <input type="submit" value="Register" class="btn btn-primary register-button">
       </div>
 
     </form>
+  </div>
   </div>
 
 {% endblock %}
