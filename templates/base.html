@@ -36,7 +36,7 @@
         <span class="icon-bar"></span>
       </button>
       <a class="navbar-brand" href="/">
-        <span class="brand-icon"><!-- <img src="/static/pinterest-logo-white.png"> --></span>
+        <span class="brand-icon"></span>
         PinShop
       </a>
     </div>
@@ -63,9 +63,9 @@
   <!-- /.container-fluid -->
 </nav>
 <div id="extending">
-  {% for flash in get_flashed_messages() %}
+  <!-- {% for flash in get_flashed_messages() %}
     <div class="alert alert-success" style="width:90%; margin:0 auto;">{{ flash }}</div>
-  {% endfor %}
+  {% endfor %} -->
 {% block content %}
 {% endblock %}
 </div>

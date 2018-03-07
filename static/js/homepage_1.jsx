@@ -1,7 +1,7 @@
 class SearchClick extends React.Component { 
 
     render() {
-        return <a href="http://localhost:5001/search"><button id="search-click">
+        return <a href="/search"><button id="search-click">
                    Search</button></a>
     }
 }
@@ -9,7 +9,7 @@ class SearchClick extends React.Component {
 class SignUp extends React.Component { 
 
     render() {
-        return <a href="http://localhost:5001/register"><button id="sign-up">
+        return <a href="/register"><button id="sign-up">
                    Sign Up</button></a>
     }
 }

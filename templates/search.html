@@ -20,15 +20,11 @@
     <div class="form-group">
       <label>Image URL:
           <input type="url" name="image_URL" class="form-control image_URL" id="image_URL">
-          <div>
-              <div class="default_shape_div">
-            <div id="default_shape">
-              <img src="/static/photo-camera.png" class="camera-icon">
-            </div>
-            <img id="image_preview" src="" />
-          </div>
-        </div>
       </label>
+      <div id="default_shape">
+          <img src="/static/photo-camera.png" class="camera-icon">
+      </div>
+      <img id="image_preview" src="" />
       <input type="hidden" name="image_desc" id="image_desc"></input>
     </div>
 
@@ -77,7 +73,7 @@
       </div>
 
     <div class="form-group">
-      <p><input type="submit" value="Search" id="Shop-search" class="btn btn-primary"></p>
+      <p><input type="submit" value="Search" id="Shop-search" class="btn"></p>
     </div>
 
   </form>
@@ -91,22 +87,23 @@
   {# SEARCH FOR BOARD PORTION IF USER PROVIDES PINTEREST NAME #}
   <form action="/search" method="GET"> {# make sure this is correctly a get request; need to send board name #}
   {% if session.get("pin_username") %} {# if "pin_username" in session #}
-  <div class="row"></div>
-        <div class="col-xs-offset-0 col-xs-12 search-title">
-    <p><h3 class="pin-search-title">Search your pins</h3></p>
-  </div>
+  <!-- <div class="row"></div>
+        <div class="col-xs-offset-0 col-xs-12 search-title"> -->
+    <!-- <p><h3 class="pin-search-title">Search your board name</h3></p> -->
+ <!--  </div> -->
    
 
     <!-- <p><h4>Filter by specific board</h4></p> Allow user to input specific board name -->
-    <div class="form-group">
-      <label>Pinterest Board Name:
-          <input type="text" name="board-name" class="form-control board-name" id="board-input">
-      </label>
+    <div class="form-group board-selector">
+      <span>Enter your board name:
+      </span>
+      <input type="text" name="board-name" class="form-control board-name" id="board-input">
+      <input type="submit" value="Load Board" class="btn">
     </div>
 
-    <div class="form-group">
-      <p><input type="submit" value="Load Board" class="btn btn-primary"></p>
-    </div>
+    <span class="form-group">
+     <!--  <p><input type="submit" value="Load Board" class="btn"></p> -->
+    </span>
   </form>
 
   {% else %}
