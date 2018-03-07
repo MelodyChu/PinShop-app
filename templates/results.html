@@ -1,26 +1,46 @@
 {% extends 'base.html' %}
 {% block content %}
-
+<!-- <div class="row"></div>
+  <div class="col-xs-offset-5 col-xs-7"> -->
+  <div class="results-title-div">
     <h1>PinShop Results</h1>
-  <div>
-  <h3>Sort by:</h3>
+  </div>
+
+  <div class="sort-by-div">
+     <h3 class="sort-by-text">Sort by:</h3>
+   </div>
+    <!-- <div class="row"></div>
+      <div class="col-xs-offset-5 col-xs-7">
+        <h3>Sort by:</h3>
+      </div> -->
+ 
+    <div class="filter-radios">
+    <span class="radiobutton">
   <input type="radio" name="result-sort" class="sortradiobutton" id="popularity" value="popularity" checked>
   <label for="popularity">Popularity
+  </span>
 
+  <span class="radiobutton">
   <input type="radio" name="result-sort" class="sortradiobutton" id="lowtohigh" value="lowtohigh">
   <label for="lowtohigh">Price: Low to High
+  </span>
 
+  <span class="radiobutton">
   <input type="radio" name="result-sort" class="sortradiobutton" id="hightolow" value="hightolow">
   <label for="hightolow">Price: High to Low
+  </span>
   
+  <span class="radiobutton">
   <input type="radio" name="result-sort" class="sortradiobutton" id="sortbrand" value="sortbrand">
-  <label for="sortbrand">Specific Brand
+  <label for="sortbrand">Brand
    <select name="brand-dropdown" id="brand-dropdown">
     {% for brand in brand_set %}
       <option class="brand-select" value="{{ brand }}">{{ brand }}</option>
     {% endfor %}
   </select>
+</span>
   </div>
+</div>
 
 
      <!-- same as wrapper -->

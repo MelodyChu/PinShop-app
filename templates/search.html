@@ -1,30 +1,33 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="container-fluid">
-    <div class="row"></div>
-        <div class="col-xs-offset-5 col-xs-7">
+        <div class="search-page-div">
             <h1 id="search-page-head">PinShop</h1>
         </div>
     
     <div class="row"></div>
-      <div class="col-xs-offset-3 col-xs-9">
+      <div class="search-desc-div">
         <p><h3 id="search-page-desc">Search for your favorite styles by using your pins and images!</h3></p>
     </div>
 
 
 <div class="split-left">
-  <div class="search-form-container">
+  <div class="search-form-container container-fluid">
      <form action="/search" method="POST" id="image_form">
-      <p><h3 id="search-url-title">Search by Image URL</h3></p>
+        <div class="search-url-div">
+          <p><h3 id="search-url-title">Search by Image URL</h3></p>
+        </div>
     <div class="form-group">
       <label>Image URL:
           <input type="url" name="image_URL" class="form-control image_URL" id="image_URL">
           <div>
+              <div class="default_shape_div">
             <div id="default_shape">
               <img src="/static/photo-camera.png" class="camera-icon">
             </div>
             <img id="image_preview" src="" />
           </div>
+        </div>
       </label>
       <input type="hidden" name="image_desc" id="image_desc"></input>
     </div>
@@ -88,11 +91,16 @@
   {# SEARCH FOR BOARD PORTION IF USER PROVIDES PINTEREST NAME #}
   <form action="/search" method="GET"> {# make sure this is correctly a get request; need to send board name #}
   {% if session.get("pin_username") %} {# if "pin_username" in session #}
+  <div class="row"></div>
+        <div class="col-xs-offset-0 col-xs-12 search-title">
     <p><h3 class="pin-search-title">Search your pins</h3></p>
+  </div>
+   
+
     <!-- <p><h4>Filter by specific board</h4></p> Allow user to input specific board name -->
     <div class="form-group">
       <label>Pinterest Board Name:
-          <input type="text" name="board-name" class="form-control board-name">
+          <input type="text" name="board-name" class="form-control board-name" id="board-input">
       </label>
     </div>
 

@@ -1,7 +1,7 @@
 class SearchClick extends React.Component { 
 
     render() {
-        return <a href="http://localhost:5001/search"><button id="search-click" className="btn btn-primary">
+        return <a href="http://localhost:5001/search"><button id="search-click">
                    Search</button></a>
     }
 }
@@ -9,7 +9,7 @@ class SearchClick extends React.Component {
 class SignUp extends React.Component { 
 
     render() {
-        return <a href="http://localhost:5001/register"><button id="sign-up" className="btn btn-primary">
+        return <a href="http://localhost:5001/register"><button id="sign-up">
                    Sign Up</button></a>
     }
 }
@@ -54,8 +54,7 @@ const IMAGES = [
     "https://images.pexels.com/photos/443088/pexels-photo-443088.jpeg?w=940&h=650&dpr=2&auto=compress&cs=tinysrgb",
     "https://images.pexels.com/photos/674268/pexels-photo-674268.jpeg?h=350&dpr=2&auto=compress&cs=tinysrgb",
     "https://images.pexels.com/photos/48588/pexels-photo-48588.jpeg?w=940&h=650&dpr=2&auto=compress&cs=tinysrgb",
-    "https://images.pexels.com/photos/361758/pexels-photo-361758.jpeg?w=940&h=650&dpr=2&auto=compress&cs=tinysrgb",
-    "https://images.pexels.com/photos/374845/pexels-photo-374845.jpeg?w=940&h=650&dpr=2&auto=compress&cs=tinysrgb"
+    "https://images.pexels.com/photos/361758/pexels-photo-361758.jpeg?w=940&h=650&dpr=2&auto=compress&cs=tinysrgb"
 ]
 
 const Slide = (props) => {
