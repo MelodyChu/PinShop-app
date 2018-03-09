@@ -10,10 +10,6 @@ Once the search query is submitted, the Clarifai image recognition API extracts 
 
 Users can filter their results by price and by brand, and bookmark results to purchase for later.
 
-<img src="/static/search_screenshot.png" />
-
-<img src="/static/results_screenshot.png" />
-
 ## Technologies Used
 
 **APIs:** Pinterest, Clarifai Image Recognition, ShopStyle, Etsy
@@ -22,4 +18,7 @@ Users can filter their results by price and by brand, and bookmark results to pu
 
 **Backend:** Python, Flask, PostgreSQL
 
+<img src="/static/search_screenshot.png" />
+
+<img src="/static/results_screenshot.png" />
 
